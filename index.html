@@ -16,9 +16,10 @@ body {
   align-items: center;
   justify-content: flex-start;
   height: 100vh;
-  padding-top: 120px; /* Przesunięto w dół */
+  /* Pozycja dopasowana do Twojego rysunku */
+  padding-top: 35px; 
   overflow: hidden;
-  perspective: 1000px;
+  perspective: 1200px;
 }
 
 .card {
@@ -30,8 +31,6 @@ body {
   border-radius: 20px;
   width: 90%;
   max-width: 450px;
-  
-  /* Efekt 3D */
   transition: transform 0.1s ease-out;
   transform-style: preserve-3d;
   will-change: transform;
@@ -40,43 +39,51 @@ body {
 h1 {
   font-size: 42px;
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   color: white;
-  transform: translateZ(40px); /* Wyraźne wystawanie napisu */
+  transform: translateZ(50px);
+}
+
+.icon-mid {
+  font-size: 30px;
+  margin-bottom: 15px;
+  color: #ffcc00;
+  transform: translateZ(40px);
 }
 
 p {
-  font-size: 18px;
+  font-size: 16px;
   color: #aaa;
-  transform: translateZ(25px);
+  margin-bottom: 20px;
+  transform: translateZ(30px);
 }
 
 .ip {
   font-size: 22px;
-  margin: 25px 0;
+  margin: 20px 0;
   color: #00ff88;
   font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
-  transform: translateZ(30px);
+  transform: translateZ(35px);
 }
 
 .buttons-container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
-  transform: translateZ(50px);
+  transform: translateZ(60px);
 }
 
 button, .discord-btn {
   width: 100%;
   max-width: 250px;
   border: none;
-  padding: 15px 25px;
+  padding: 14px 20px;
   font-size: 16px;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border-radius: 8px;
   text-decoration: none;
   display: flex;
@@ -85,18 +92,17 @@ button, .discord-btn {
   gap: 10px;
 }
 
-/* Przycisk Kopiuj */
 .copy-btn {
   background: #00ff88;
   color: black;
+  min-width: 250px; /* Stała szerokość, by przycisk nie skakał przy zmianie tekstu */
 }
 
-.copy-btn:hover {
-  box-shadow: 0 0 20px #00ff88;
-  transform: scale(1.05);
+.copy-btn.copied {
+  background: white;
+  color: black;
 }
 
-/* Przycisk Discord */
 .discord-btn {
   background: #5865F2;
   color: white;
@@ -104,22 +110,21 @@ button, .discord-btn {
 
 .discord-btn:hover {
   background: #4752c4;
-  box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
-  transform: scale(1.05);
 }
 </style>
 </head>
 
 <body>
   <div class="card" id="tiltCard">
-    <h1>⚡ POLSKA LAFTER ⚡</h1>
+    <h1>⚡ POLSKA LAFTER</h1>
+    <div class="icon-mid">⚡</div>
     <p>Nowoczesny serwer Minecraft</p>
 
     <div class="ip">IP: polskalafter.falix.gg</div>
 
     <div class="buttons-container">
-      <button class="copy-btn" onclick="copyIP()">
-        <i class="fas fa-copy"></i> Kopiuj IP
+      <button class="copy-btn" id="copyBtn" onclick="copyIP()">
+        <i class="fas fa-copy"></i> <span id="btnText">Kopiuj IP</span>
       </button>
 
       <a href="https://dsc.gg/polskalafter" target="_blank" class="discord-btn">
@@ -130,32 +135,40 @@ button, .discord-btn {
 
   <script>
     const card = document.getElementById('tiltCard');
+    const btn = document.getElementById('copyBtn');
+    const btnText = document.getElementById('btnText');
 
+    // Obsługa 3D Tilt
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
-      
-      // Pozycja myszki wewnątrz karty
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
-      // Obliczanie kąta (środek karty to 0,0)
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      
-      const rotateX = (centerY - y) / 10; // im mniejsza liczba tym mocniejszy przechył
-      const rotateY = (x - centerX) / 10;
-
+      const rotateX = (centerY - y) / 15;
+      const rotateY = (x - centerX) / 15;
       card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
 
-    // Powrót do poziomu po zjechaniu myszką
     card.addEventListener('mouseleave', () => {
       card.style.transform = `rotateX(0deg) rotateY(0deg)`;
     });
 
+    // Nowa funkcja kopiowania
     function copyIP() {
-      navigator.clipboard.writeText('polskalafter.falix.gg');
-      alert('IP zostało skopiowane!');
+      const ip = 'polskalafter.falix.gg';
+      navigator.clipboard.writeText(ip);
+
+      // Zmiana wyglądu przycisku
+      const originalHtml = btnText.innerText;
+      btnText.innerText = 'Skopiowano!';
+      btn.classList.add('copied');
+
+      // Powrót do oryginału po 2 sekundach
+      setTimeout(() => {
+        btnText.innerText = originalHtml;
+        btn.classList.remove('copied');
+      }, 2000);
     }
   </script>
 </body>
