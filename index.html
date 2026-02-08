@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Polska Lafter</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 body {
@@ -15,9 +16,8 @@ body {
   align-items: center;
   justify-content: flex-start;
   height: 100vh;
-  padding-top: 50px;
+  padding-top: 120px; /* Przesunięto w dół */
   overflow: hidden;
-  /* Perspektywa jest kluczowa dla efektu 3D */
   perspective: 1000px;
 }
 
@@ -25,58 +25,87 @@ body {
   border: 2px solid #00ff88;
   padding: 40px;
   text-align: center;
-  box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
-  background: rgba(0, 0, 0, 0.9);
-  border-radius: 15px;
-  width: 80%;
-  max-width: 500px;
+  box-shadow: 0 0 40px rgba(0, 255, 136, 0.15);
+  background: rgba(10, 10, 10, 0.95);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 450px;
   
-  /* Ustawienia dla animacji */
+  /* Efekt 3D */
   transition: transform 0.1s ease-out;
   transform-style: preserve-3d;
   will-change: transform;
 }
 
 h1 {
-  font-size: 48px;
+  font-size: 42px;
   margin-top: 0;
   margin-bottom: 10px;
   color: white;
-  /* Dodaje efekt głębi tekstowi wewnątrz karty */
-  transform: translateZ(30px);
+  transform: translateZ(40px); /* Wyraźne wystawanie napisu */
 }
 
 p {
   font-size: 18px;
   color: #aaa;
-  transform: translateZ(20px);
+  transform: translateZ(25px);
 }
 
 .ip {
-  font-size: 24px;
+  font-size: 22px;
   margin: 25px 0;
   color: #00ff88;
   font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
-  transform: translateZ(25px);
+  transform: translateZ(30px);
 }
 
-button {
-  background: #00ff88;
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  transform: translateZ(50px);
+}
+
+button, .discord-btn {
+  width: 100%;
+  max-width: 250px;
   border: none;
-  padding: 15px 30px;
+  padding: 15px 25px;
   font-size: 16px;
   cursor: pointer;
   font-weight: bold;
-  transition: 0.3s;
-  border-radius: 4px;
-  transform: translateZ(40px);
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-button:hover {
-  box-shadow: 0 0 25px #00ff88;
-  background: white;
+/* Przycisk Kopiuj */
+.copy-btn {
+  background: #00ff88;
   color: black;
+}
+
+.copy-btn:hover {
+  box-shadow: 0 0 20px #00ff88;
+  transform: scale(1.05);
+}
+
+/* Przycisk Discord */
+.discord-btn {
+  background: #5865F2;
+  color: white;
+}
+
+.discord-btn:hover {
+  background: #4752c4;
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.5);
+  transform: scale(1.05);
 }
 </style>
 </head>
@@ -88,43 +117,45 @@ button:hover {
 
     <div class="ip">IP: polskalafter.falix.gg</div>
 
-    <button onclick="copyIP()">
-      Kopiuj IP
-    </button>
+    <div class="buttons-container">
+      <button class="copy-btn" onclick="copyIP()">
+        <i class="fas fa-copy"></i> Kopiuj IP
+      </button>
+
+      <a href="https://dsc.gg/polskalafter" target="_blank" class="discord-btn">
+        <i class="fab fa-discord"></i> Serwer Discord
+      </a>
+    </div>
   </div>
 
   <script>
     const card = document.getElementById('tiltCard');
 
-    document.addEventListener('mousemove', (e) => {
+    card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       
-      // Obliczanie środka karty
-      const cardCenterX = rect.left + rect.width / 2;
-      const cardCenterY = rect.top + rect.height / 2;
+      // Pozycja myszki wewnątrz karty
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
       
-      // Obliczanie wychylenia myszki względem środka
-      const mouseX = e.clientX - cardCenterX;
-      const mouseY = e.clientY - cardCenterY;
+      // Obliczanie kąta (środek karty to 0,0)
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
       
-      // Ustawienie siły obrotu (im większa liczba, tym mniejszy obrót)
-      const force = 15; 
-      
-      const rotateX = -mouseY / force;
-      const rotateY = mouseX / force;
+      const rotateX = (centerY - y) / 10; // im mniejsza liczba tym mocniejszy przechył
+      const rotateY = (x - centerX) / 10;
 
-      // Zastosowanie rotacji
       card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
 
-    // Powrót do prostej pozycji po zjechaniu myszką
-    document.addEventListener('mouseleave', () => {
+    // Powrót do poziomu po zjechaniu myszką
+    card.addEventListener('mouseleave', () => {
       card.style.transform = `rotateX(0deg) rotateY(0deg)`;
     });
 
     function copyIP() {
       navigator.clipboard.writeText('polskalafter.falix.gg');
-      alert('Skopiowano IP serwera!');
+      alert('IP zostało skopiowane!');
     }
   </script>
 </body>
