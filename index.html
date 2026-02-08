@@ -8,27 +8,33 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #0a0a0a; /* Nieco głębsza czerń */
+  background: #0a0a0a;
   color: #00ff88;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Wyśrodkowanie w poziomie */
-  justify-content: flex-start; /* Wyrównanie do góry */
+  align-items: center;
+  justify-content: flex-start;
   height: 100vh;
-  padding-top: 50px; /* Odstęp od górnej krawędzi */
+  padding-top: 50px;
   overflow: hidden;
+  /* Perspektywa jest kluczowa dla efektu 3D */
+  perspective: 1000px;
 }
 
 .card {
   border: 2px solid #00ff88;
   padding: 40px;
   text-align: center;
-  box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-  /* Usunięto transform: skewY(-3deg) - teraz jest prosto */
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: 8px; /* Delikatne zaokrąglenie dla estetyki */
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 15px;
   width: 80%;
   max-width: 500px;
+  
+  /* Ustawienia dla animacji */
+  transition: transform 0.1s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 h1 {
@@ -36,20 +42,23 @@ h1 {
   margin-top: 0;
   margin-bottom: 10px;
   color: white;
-  letter-spacing: 2px;
+  /* Dodaje efekt głębi tekstowi wewnątrz karty */
+  transform: translateZ(30px);
 }
 
 p {
   font-size: 18px;
   color: #aaa;
+  transform: translateZ(20px);
 }
 
 .ip {
   font-size: 24px;
   margin: 25px 0;
   color: #00ff88;
-  font-family: 'Courier New', Courier, monospace; /* Wygląd bardziej "serwerowy" */
+  font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
+  transform: translateZ(25px);
 }
 
 button {
@@ -61,25 +70,62 @@ button {
   font-weight: bold;
   transition: 0.3s;
   border-radius: 4px;
+  transform: translateZ(40px);
 }
 
 button:hover {
   box-shadow: 0 0 25px #00ff88;
-  transform: scale(1.05); /* Delikatne powiększenie przy najechaniu */
+  background: white;
+  color: black;
 }
 </style>
 </head>
 
 <body>
-  <div class="card">
+  <div class="card" id="tiltCard">
     <h1>⚡ POLSKA LAFTER ⚡</h1>
     <p>Nowoczesny serwer Minecraft</p>
 
     <div class="ip">IP: polskalafter.falix.gg</div>
 
-    <button onclick="navigator.clipboard.writeText('polskalafter.falix.gg'); alert('Skopiowano IP!')">
+    <button onclick="copyIP()">
       Kopiuj IP
     </button>
   </div>
+
+  <script>
+    const card = document.getElementById('tiltCard');
+
+    document.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      
+      // Obliczanie środka karty
+      const cardCenterX = rect.left + rect.width / 2;
+      const cardCenterY = rect.top + rect.height / 2;
+      
+      // Obliczanie wychylenia myszki względem środka
+      const mouseX = e.clientX - cardCenterX;
+      const mouseY = e.clientY - cardCenterY;
+      
+      // Ustawienie siły obrotu (im większa liczba, tym mniejszy obrót)
+      const force = 15; 
+      
+      const rotateX = -mouseY / force;
+      const rotateY = mouseX / force;
+
+      // Zastosowanie rotacji
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+
+    // Powrót do prostej pozycji po zjechaniu myszką
+    document.addEventListener('mouseleave', () => {
+      card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+
+    function copyIP() {
+      navigator.clipboard.writeText('polskalafter.falix.gg');
+      alert('Skopiowano IP serwera!');
+    }
+  </script>
 </body>
 </html>
