@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Polska Lafter</title>
+<title>O Vajpeju</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -43,14 +43,6 @@ h1 {
   transform: translateZ(50px);
 }
 
-.icon-mid {
-  font-size: 30px;
-  margin-bottom: 10px;
-  color: #ffcc00;
-  transform: translateZ(40px);
-}
-
-/* Kontener na Twoje zdjęcie */
 .image-container {
   margin-bottom: 15px;
   transform: translateZ(45px);
@@ -60,7 +52,6 @@ h1 {
   max-width: 100%;
   height: auto;
   border-radius: 10px;
-  /* Tutaj możesz dodać np. border lub box-shadow jeśli chcesz */
 }
 
 p {
@@ -87,7 +78,7 @@ p {
   transform: translateZ(60px);
 }
 
-button, .discord-btn {
+.custom-btn, .discord-btn {
   width: 100%;
   max-width: 250px;
   border: none;
@@ -104,17 +95,18 @@ button, .discord-btn {
   gap: 10px;
 }
 
-.copy-btn {
-  background: #00ff88;
-  color: black;
-  min-width: 250px;
+/* Przycisk Roblox (zamiast kopiowania) */
+.roblox-btn {
+  background: #ffffff;
+  color: #000000;
 }
 
-.copy-btn.copied {
-  background: white;
-  color: black;
+.roblox-btn:hover {
+  background: #e0e0e0;
+  transform: scale(1.03);
 }
 
+/* Przycisk Discord */
 .discord-btn {
   background: #5865F2;
   color: white;
@@ -122,37 +114,36 @@ button, .discord-btn {
 
 .discord-btn:hover {
   background: #4752c4;
+  transform: scale(1.03);
 }
 </style>
 </head>
 
 <body>
   <div class="card" id="tiltCard">
-    <h1>⚡ POLSKA LAFTER ⚡</h1>
+    <h1>🖥Vajpej🖥</h1>
 
     <div class="image-container">
-        <img src="https://cdn.discordapp.com/attachments/1469315898929057883/1470031432725561528/polskalafter2.png?ex=6989d0f5&is=69887f75&hm=6750a11f8fb30df9d7a2b727b8243fb89761828ef0923c851176a6a555ef1c31&" alt="Server Image">
+        <img src="https://cdn.discordapp.com/attachments/1469315898929057883/1469689049341235416/image.png?ex=6989e396&is=69889216&hm=288becba695c41804214cd1c0853a4b4b6df24167a98218b71cd575af8d73531&" alt="Server Image">
     </div>
 
-    <p>Nowoczesny serwer Minecraft</p>
+    <p>Autobusiarz</p>
 
-    <div class="ip">IP: polskalafter.falix.gg</div>
+    <div class="ip">Dev/Owner MPK Ustrój</div>
 
     <div class="buttons-container">
-      <button class="copy-btn" id="copyBtn" onclick="copyIP()">
-        <i class="fas fa-copy"></i> <span id="btnText">Kopiuj IP</span>
-      </button>
+      <a href="https://vajpej.github.io/polskalafter" target="_blank" class="roblox-btn custom-btn">
+        <i class="fas fa-gamepad"></i> Polska Lafter
+      </a>
 
-      <a href="https://dsc.gg/polskalafter" target="_blank" class="discord-btn">
-        <i class="fab fa-discord"></i> Serwer Discord
+      <a href="https://vajpej.github.io/mpkustroj" target="_blank" class="discord-btn">
+        <i class="fab fa-discord"></i> MPK Ustrój
       </a>
     </div>
   </div>
 
   <script>
     const card = document.getElementById('tiltCard');
-    const btn = document.getElementById('copyBtn');
-    const btnText = document.getElementById('btnText');
 
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
@@ -168,17 +159,6 @@ button, .discord-btn {
     card.addEventListener('mouseleave', () => {
       card.style.transform = `rotateX(0deg) rotateY(0deg)`;
     });
-
-    function copyIP() {
-      const ip = 'polskalafter.falix.gg';
-      navigator.clipboard.writeText(ip);
-      btnText.innerText = 'Skopiowano!';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btnText.innerText = 'Kopiuj IP';
-        btn.classList.remove('copied');
-      }, 2000);
-    }
   </script>
 </body>
 </html>
