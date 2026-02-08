@@ -16,7 +16,6 @@ body {
   align-items: center;
   justify-content: flex-start;
   height: 100vh;
-  /* Pozycja dopasowana do Twojego rysunku */
   padding-top: 35px; 
   overflow: hidden;
   perspective: 1200px;
@@ -46,9 +45,22 @@ h1 {
 
 .icon-mid {
   font-size: 30px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   color: #ffcc00;
   transform: translateZ(40px);
+}
+
+/* Kontener na Twoje zdjęcie */
+.image-container {
+  margin-bottom: 15px;
+  transform: translateZ(45px);
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  /* Tutaj możesz dodać np. border lub box-shadow jeśli chcesz */
 }
 
 p {
@@ -95,7 +107,7 @@ button, .discord-btn {
 .copy-btn {
   background: #00ff88;
   color: black;
-  min-width: 250px; /* Stała szerokość, by przycisk nie skakał przy zmianie tekstu */
+  min-width: 250px;
 }
 
 .copy-btn.copied {
@@ -118,6 +130,11 @@ button, .discord-btn {
   <div class="card" id="tiltCard">
     <h1>⚡ POLSKA LAFTER</h1>
     <div class="icon-mid">⚡</div>
+
+    <div class="image-container">
+        <img src="https://cdn.discordapp.com/attachments/1469315898929057883/1470031089685762070/d347dcd5-d881-4b78-98e3-b00e7c59ea1f.png?ex=6989d0a3&is=69887f23&hm=e77b5282cf40094cec6e0d77ff001f864acbc06316e01b728ed4669405b29f39&" alt="Server Image">
+    </div>
+
     <p>Nowoczesny serwer Minecraft</p>
 
     <div class="ip">IP: polskalafter.falix.gg</div>
@@ -138,7 +155,6 @@ button, .discord-btn {
     const btn = document.getElementById('copyBtn');
     const btnText = document.getElementById('btnText');
 
-    // Obsługa 3D Tilt
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -154,19 +170,13 @@ button, .discord-btn {
       card.style.transform = `rotateX(0deg) rotateY(0deg)`;
     });
 
-    // Nowa funkcja kopiowania
     function copyIP() {
       const ip = 'polskalafter.falix.gg';
       navigator.clipboard.writeText(ip);
-
-      // Zmiana wyglądu przycisku
-      const originalHtml = btnText.innerText;
       btnText.innerText = 'Skopiowano!';
       btn.classList.add('copied');
-
-      // Powrót do oryginału po 2 sekundach
       setTimeout(() => {
-        btnText.innerText = originalHtml;
+        btnText.innerText = 'Kopiuj IP';
         btn.classList.remove('copied');
       }, 2000);
     }
