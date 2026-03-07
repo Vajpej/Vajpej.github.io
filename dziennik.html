@@ -2,308 +2,291 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>VULCAN UONET+ Max Pro</title>
+    <title>VULCAN UONET+ TITAN EDITION</title>
     <style>
-        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-header: #34495e; --v-red: #d32f2f; }
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--v-light); display: flex; height: 100vh; font-size: 13px; }
+        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-header: #34495e; --v-warn: #ffab00; --v-red: #e74c3c; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { margin: 0; background: var(--v-light); display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
 
-        /* Sidebar - Kompaktowy */
-        #sidebar { width: 220px; background: var(--v-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-        .logo { padding: 15px; background: #1a252f; font-weight: bold; border-bottom: 3px solid var(--v-green); font-size: 16px; }
-        .nav-header { padding: 10px 15px 5px; font-size: 9px; color: #888; text-transform: uppercase; }
-        .nav-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #3e4f5f; display: flex; align-items: center; gap: 8px; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); }
-        .active { background: var(--v-green) !important; }
+        /* SIDEBAR - PRO STYLE */
+        #sidebar { width: 240px; background: var(--v-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: 4px 0 10px rgba(0,0,0,0.3); }
+        .logo { padding: 20px; background: #1a252f; font-weight: bold; border-bottom: 4px solid var(--v-green); font-size: 18px; text-align: center; letter-spacing: 1px; }
+        .nav-scroll { overflow-y: auto; flex-grow: 1; }
+        .nav-header { padding: 15px 15px 5px; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #3e4f5f; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); padding-left: 20px; }
+        .active { background: var(--v-green) !important; font-weight: bold; }
 
-        /* Content Area */
-        #main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: white; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 15px; overflow-y: auto; flex-grow: 1; }
-        .card { background: white; padding: 15px; border-radius: 4px; border: 1px solid #ddd; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-
-        /* Tabele */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f1f3f5; border: 1px solid #dee2e6; padding: 8px; font-size: 11px; text-align: left; }
-        td { border: 1px solid #dee2e6; padding: 6px; }
-        .plan-table td { font-weight: bold; text-align: center; font-size: 10px; border: 1px solid #8faadc; }
-        .plan-table th { background: #d9e1f2; border: 1px solid #8faadc; }
-
-        /* System Ocen */
-        .grade-tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 11px; margin-right: 3px; cursor: help; border: 1px solid rgba(0,0,0,0.1); }
-        .g-5 { background: #b9f6ca; color: #1b5e20; } .g-4 { background: #e8f5e9; color: #2e7d32; }
-        .g-1 { background: #ffcdd2; color: #b71c1c; }
+        /* MAIN CONTENT */
+        #main { flex-grow: 1; display: flex; flex-direction: column; }
+        header { background: white; padding: 12px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .container { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .card { background: white; padding: 20px; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         
-        /* UI Elements */
-        input, select, textarea { padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
-        .btn { padding: 6px 12px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        /* TABELE I UI */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; font-size: 11px; text-align: left; color: #555; }
+        td { border: 1px solid #dee2e6; padding: 8px; vertical-align: middle; }
+        .plan-table td { font-weight: bold; text-align: center; border: 1px solid #8faadc; font-size: 11px; }
+        .plan-table th { background: #d9e1f2; color: #2c3e50; border: 1px solid #8faadc; }
+        
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: white; }
+        .bg-plus { background: #27ae60; }
+        .bg-minus { background: #c0392b; }
+        
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-green { background: var(--v-green); color: white; }
         .btn-blue { background: var(--v-blue); color: white; }
-        
-        #login-overlay { position: fixed; inset: 0; background: #2c3e50; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+
+        #login-screen { position: fixed; inset: 0; background: radial-gradient(circle, #34495e, #2c3e50); z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <div style="background:white; padding:30px; border-radius:8px; width:300px; text-align:center;">
-            <h2 style="color:var(--v-green)">VULCAN UONET+</h2>
-            <select id="role-select" style="width:100%; margin-bottom:15px; padding:10px;">
-                <option value="dyrektor">Dyrektor (mgr A. Nowak)</option>
-                <option value="nauczyciel">Nauczyciel (Jan Kowalski)</option>
-                <option value="uczen">Uczeń (Kamil Adamczyk)</option>
+    <div id="login-screen">
+        <div style="background:white; padding:40px; border-radius:12px; width:350px; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h1 style="color:var(--v-green); margin-bottom:5px;">VULCAN</h1>
+            <p style="color:#777; margin-bottom:30px;">System UONET+ TITAN</p>
+            <select id="role-select" style="padding:12px; margin-bottom:20px;">
+                <option value="dyrektor">👑 Dyrektor Szkoły</option>
+                <option value="nauczyciel">👨‍🏫 Nauczyciel Przedmiotowy</option>
+                <option value="uczen">🎓 Uczeń (Kamil Adamczyk)</option>
             </select>
-            <button class="btn btn-green" style="width:100%" onclick="login()">Zaloguj się</button>
+            <button class="btn btn-green" style="width:100%" onclick="initApp()">ZALOGUJ SYSTEMOWO</button>
         </div>
     </div>
 
     <div id="sidebar">
-        <div class="logo">UONET+ <span id="role-tag" style="font-size:9px; background:var(--v-warn); color:black; padding:2px 4px; border-radius:3px;"></span></div>
-        <div class="nav-header">Dziennik</div>
-        <div class="nav-item active" onclick="showTab('plan')">📅 Plan Lekcji</div>
-        <div class="nav-item" id="nav-lekcje" onclick="showTab('lekcje')">📚 Frekwencja</div>
-        <div class="nav-item" onclick="showTab('oceny')">📑 Oceny</div>
-        <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
-        <div class="nav-item" onclick="showTab('sprawdziany')">📝 Sprawdziany</div>
-        
-        <div id="menu-dyrektor" style="display:none;">
-            <div class="nav-header">Zarządzanie</div>
-            <div class="nav-item" onclick="showTab('kadra')">👥 Kadra i Etaty</div>
+        <div class="logo">UONET+ TITAN</div>
+        <div class="nav-scroll">
+            <div class="nav-header">Edukacja</div>
+            <div class="nav-item active" onclick="showTab('plan')">📅 Plan Lekcji</div>
+            <div class="nav-item teacher-only" onclick="showTab('lekcje')">📚 Frekwencja</div>
+            <div class="nav-item" onclick="showTab('oceny')">📑 Arkusz Ocen</div>
+            <div class="nav-item" onclick="showTab('sprawdziany')">📝 Terminarz</div>
+            
+            <div class="nav-header">Wychowanie</div>
+            <div id="nav-uwagi" class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi i Punkty</div>
+            <div class="nav-item" onclick="showTab('wiadomosci')">✉️ Wiadomości</div>
+            
+            <div id="dyrektor-panel" style="display:none;">
+                <div class="nav-header">Administracja</div>
+                <div class="nav-item" onclick="showTab('kadra')" style="color:var(--v-warn)">👥 Zarządzanie Kadrą</div>
+                <div class="nav-item" onclick="showTab('zastepstwa')">🔄 Zastępstwa</div>
+            </div>
         </div>
-
-        <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:#ff7675; border-top:1px solid #3e4f5f;">🔒 Wyloguj</div>
+        <div class="nav-item" onclick="location.reload()" style="color:var(--v-red); border-top:1px solid #3e4f5f; margin-top:auto;">❌ Wyloguj</div>
     </div>
 
     <div id="main">
         <header>
-            <div id="header-user">Zalogowany: <strong>-</strong></div>
-            <div style="color:#888" id="header-date">Sobota, 07.03.2026</div>
+            <div id="user-display">Użytkownik: <strong>-</strong></div>
+            <div id="time-display" style="font-weight:bold; color:var(--v-green)">07.03.2026 | 12:10</div>
         </header>
 
         <div class="container">
-            
             <div id="tab-plan" class="tab-pane">
                 <div class="card">
-                    <h3>Plan Lekcji - Klasa 3A</h3>
-                    <table class="plan-table" id="timetable">
+                    <h2 style="margin-top:0">Plan Lekcji - Klasa 3A</h2>
+                    <table class="plan-table">
                         <thead>
-                            <tr><th style="width:30px">Nr</th><th style="width:80px">Godz</th><th>Poniedziałek</th><th>Wtorek</th><th>Środa</th><th>Czwartek</th><th>Piątek</th></tr>
+                            <tr><th>Nr</th><th>Godzina</th><th>Poniedziałek</th><th>Wtorek</th><th>Środa</th><th>Czwartek</th><th>Piątek</th></tr>
                         </thead>
-                        <tbody id="plan-body"></tbody>
+                        <tbody id="plan-data"></tbody>
                     </table>
-                    <button id="dyr-plan-save" class="btn btn-blue" style="margin-top:10px; display:none;" onclick="savePlan()">Zapisz Plan (Dyrektor)</button>
+                    <button id="dyr-save-plan" class="btn btn-blue" style="margin-top:15px; display:none;" onclick="savePlan()">ZAPISZ EDYCJĘ PLANU</button>
                 </div>
             </div>
 
             <div id="tab-oceny" class="tab-pane" style="display:none;">
-                <div id="teacher-grade-add" class="card">
-                    <h3>Dodaj nową ocenę</h3>
-                    <div style="display:flex; gap:10px; align-items:flex-end;">
-                        <div>Uczeń:<br><select id="g-sel-student"></select></div>
-                        <div>Ocena:<br><input type="number" id="g-val" style="width:50px" min="1" max="6"></div>
-                        <div>Kategoria:<br><input type="text" id="g-cat" placeholder="np. Sprawdzian"></div>
-                        <div>Waga:<br><input type="number" id="g-weight" style="width:50px" value="1"></div>
-                        <button class="btn btn-green" onclick="addGrade()">Wstaw ocenę</button>
+                <div class="card teacher-only">
+                    <h3>Wstaw Ocenę</h3>
+                    <div style="display:grid; grid-template-columns: 2fr 1fr 2fr 1fr auto; gap:10px; align-items:end;">
+                        <div>Uczeń:<br><select id="gr-student"></select></div>
+                        <div>Ocena:<br><input type="number" id="gr-val" min="1" max="6"></div>
+                        <div>Kategoria:<br><input type="text" id="gr-cat" placeholder="Sprawdzian..."></div>
+                        <div>Waga:<br><input type="number" id="gr-weight" value="1"></div>
+                        <button class="btn btn-green" onclick="addGrade()">WSTAW</button>
                     </div>
                 </div>
-
                 <div class="card">
-                    <h3>Arkusz ocen bieżących</h3>
-                    <table>
-                        <thead><tr><th>Uczeń</th><th>Oceny (Szczegóły)</th><th style="width:80px">Średnia</th></tr></thead>
+                    <h3>Oceny Bieżące</h3>
+                    <table id="grades-table">
+                        <thead><tr><th>Uczeń</th><th>Oceny i Szczegóły</th><th style="width:80px">Średnia</th></tr></thead>
                         <tbody id="grades-body"></tbody>
                     </table>
                 </div>
             </div>
 
+            <div id="tab-uwagi" class="tab-pane" style="display:none;">
+                <div class="card teacher-only">
+                    <h3>Dodaj Wpis Wychowawczy</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px; align-items:end;">
+                        <div>Uczeń:<br><select id="note-student"></select></div>
+                        <div>Typ wpisu:<br><select id="note-type"><option value="plus">Pochwała (+)</option><option value="minus">Uwaga (-)</option></select></div>
+                        <button class="btn btn-green" onclick="addNote()">DODAJ WPIS</button>
+                    </div>
+                    <textarea id="note-text" placeholder="Opisz zachowanie ucznia..." style="margin-top:10px; height:60px;"></textarea>
+                </div>
+                <div id="notes-list"></div>
+            </div>
+
             <div id="tab-lekcje" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h3>Sprawdzanie obecności - Matematyka</h3>
+                    <h3>Lista Obecności</h3>
                     <table id="att-table">
-                        <thead><tr><th>Lp</th><th>Uczeń</th><th>Status</th></tr></thead>
+                        <thead><tr><th>Uczeń</th><th>Status</th></tr></thead>
                         <tbody id="att-body"></tbody>
                     </table>
-                    <button class="btn btn-green" style="margin-top:10px;" onclick="saveAtt()">Zatwierdź obecność</button>
+                    <button class="btn btn-green" style="margin-top:15px;" onclick="saveAtt()">ZAPISZ FREKWENCJĘ</button>
                 </div>
             </div>
 
-            <div id="tab-sprawdziany" class="tab-pane" style="display:none;">
-                <div class="card" id="exam-add-form">
-                    <h3>Zaplanuj Sprawdzian / Kartkówkę</h3>
-                    <input type="date" id="ex-date">
-                    <input type="text" id="ex-sub" placeholder="Przedmiot">
-                    <input type="text" id="ex-desc" placeholder="Temat sprawdzianu">
-                    <button class="btn btn-blue" onclick="addExam()">Dodaj do kalendarza</button>
-                </div>
-                <div id="exam-list"></div>
-            </div>
-
-            <div id="tab-kadra" class="tab-pane" style="display:none;">
+            <div id="tab-wiadomosci" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h3>Zarządzanie Nauczycielami</h3>
-                    <input type="text" id="t-name" placeholder="Imię i Nazwisko">
-                    <input type="text" id="t-sub" placeholder="Przedmiot">
-                    <button class="btn btn-green" onclick="addTeacher()">Zatrudnij</button>
-                    <ul id="t-list" style="margin-top:15px"></ul>
+                    <h3>Skrzynka Odbiorcza</h3>
+                    <div style="border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background: #fefefe;">
+                        <strong>Od: Dyrekcja</strong> <small>(07.03.2026)</small><br>
+                        Przypominamy o radzie pedagogicznej w poniedziałek.
+                    </div>
+                    <button class="btn btn-blue">NOWA WIADOMOŚĆ</button>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
-        const students = ["Adamczyk Kamil", "Borkowska Anna", "Cichy Michał", "Duda Karolina", "Ejsmont Igor"];
-        let user = { role: '', name: '' };
+        const students = ["Adamczyk Kamil", "Borkowska Anna", "Cichy Michał", "Duda Karolina", "Ejsmont Igor", "Filipiak Jan", "Głowacka Ewa"];
+        let currentUser = { role: '' };
 
-        const photoData = [
+        const masterPlan = [
             ["1", "8:00- 8:45", "e_dla_bezp MB 60", "", "", "chemia KŁ 34", ""],
             ["2", "8:50- 9:35", "j.polski MB 60", "", "j.angielski AT 54", "zaj. wych. AT 60", "j.polski MB 60"],
             ["3", "9:45-10:30", "j.niemiecki JH 60", "fizyka UG 34", "wf MZ s2", "j.polski MB 60", "j.polski MB 60"],
             ["4", "10:35-11:20", "matematyka IS 50", "wos MG 51", "matematyka IS 50", "wf MZ s2", "matematyka IS 50"],
-            ["5", "11:40-12:25", "wos MG 51", "historia MG 51", "fizyka UG 54", "biologia SN 49", "j.niemiecki JH 59"]
+            ["5", "11:40-12:25", "wos MG 51", "historia MG 51", "fizyka UG 54", "biologia SN 49", "j.niemiecki JH 59"],
+            ["6", "12:45-13:30", "wf MZ s2", "geografia JP 54", "j.polski MB 60", "historia MG 51", "wf MZ s2"],
+            ["7", "13:45-14:30", "", "j.angielski AT 59", "chemia KŁ 34", "matematyka IS 50", "j.angielski AT 54"],
+            ["8", "14:35-15:20", "", "", "religia CŁ 51", "informatyka-1/2 EZ 20", "informatyka-2/2 EZ 20"]
         ];
 
-        function login() {
-            const role = document.getElementById('role-select').value;
-            user.role = role;
-            user.name = document.getElementById('role-select').selectedOptions[0].text;
+        function initApp() {
+            currentUser.role = document.getElementById('role-select').value;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('user-display').innerHTML = `Zalogowany: <strong>${currentUser.role.toUpperCase()}</strong>`;
             
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('role-tag').innerText = role.toUpperCase();
-            document.getElementById('header-user').innerHTML = `Zalogowano: <strong>${user.name}</strong>`;
-
-            // Uprawnienia
-            if(role === 'dyrektor') {
-                document.getElementById('menu-dyrektor').style.display = 'block';
-                document.getElementById('dyr-plan-save').style.display = 'block';
+            if(currentUser.role === 'dyrektor') {
+                document.getElementById('dyrektor-panel').style.display = 'block';
+                document.getElementById('dyr-save-plan').style.display = 'block';
             }
-            if(role === 'uczen') {
-                document.getElementById('teacher-grade-add').style.display = 'none';
-                document.getElementById('nav-lekcje').style.display = 'none';
-                document.getElementById('exam-add-form').style.display = 'none';
+            if(currentUser.role === 'uczen') {
+                document.querySelectorAll('.teacher-only').forEach(el => el.style.display = 'none');
             }
 
-            init();
+            renderAll();
         }
 
-        function init() {
+        function renderAll() {
             renderPlan();
-            renderStudents();
             renderGrades();
             renderAtt();
-            renderExams();
-            renderTeachers();
+            renderNotes();
+            const sels = ['gr-student', 'note-student'];
+            sels.forEach(id => document.getElementById(id).innerHTML = students.map(s => `<option>${s}</option>`).join(''));
         }
 
-        function renderStudents() {
-            document.getElementById('g-sel-student').innerHTML = students.map(s => `<option>${s}</option>`).join('');
-        }
-
-        // --- PLAN LEKCJI ---
         function renderPlan() {
-            const body = document.getElementById('plan-body');
-            const data = JSON.parse(localStorage.getItem('v_plan_final')) || photoData;
-            const isDyr = user.role === 'dyrektor';
-            body.innerHTML = data.map(row => `
+            const data = JSON.parse(localStorage.getItem('TITAN_PLAN')) || masterPlan;
+            const isEdit = currentUser.role === 'dyrektor';
+            document.getElementById('plan-data').innerHTML = data.map(row => `
                 <tr>
-                    <td>${row[0]}</td>
-                    <td contenteditable="${isDyr}">${row[1]}</td>
-                    ${row.slice(2).map(c => `<td contenteditable="${isDyr}">${c}</td>`).join('')}
+                    <td style="background:#f8f9fa">${row[0]}</td>
+                    <td contenteditable="${isEdit}">${row[1]}</td>
+                    ${row.slice(2).map(c => `<td contenteditable="${isEdit}">${c}</td>`).join('')}
                 </tr>
             `).join('');
         }
 
         function savePlan() {
-            const rows = Array.from(document.querySelectorAll('#plan-body tr'));
+            const rows = Array.from(document.querySelectorAll('#plan-data tr'));
             const data = rows.map(r => Array.from(r.cells).map(c => c.innerText));
-            localStorage.setItem('v_plan_final', JSON.stringify(data));
-            alert("Plan zapisany!");
+            localStorage.setItem('TITAN_PLAN', JSON.stringify(data));
+            alert("SYSTEM: Plan lekcji zsynchronizowany z bazą danych.");
         }
 
-        // --- OCENY (ZAAWANSOWANE) ---
         function addGrade() {
-            const s = document.getElementById('g-sel-student').value;
-            const v = document.getElementById('g-val').value;
-            const c = document.getElementById('g-cat').value || 'Inne';
-            const w = document.getElementById('g-weight').value || 1;
-
+            const s = document.getElementById('gr-student').value;
+            const v = parseInt(document.getElementById('gr-val').value);
+            const c = document.getElementById('gr-cat').value || 'Aktywność';
+            const w = parseInt(document.getElementById('gr-weight').value) || 1;
             if(!v) return;
-            const db = JSON.parse(localStorage.getItem('v_grades_db')) || [];
-            db.push({ student: s, val: parseInt(v), cat: c, w: parseInt(w) });
-            localStorage.setItem('v_grades_db', JSON.stringify(db));
+
+            const db = JSON.parse(localStorage.getItem('TITAN_GRADES')) || [];
+            db.push({ s, v, c, w, d: new Date().toLocaleDateString() });
+            localStorage.setItem('TITAN_GRADES', JSON.stringify(db));
             renderGrades();
         }
 
         function renderGrades() {
-            const body = document.getElementById('grades-body');
-            const db = JSON.parse(localStorage.getItem('v_grades_db')) || [];
-            
-            body.innerHTML = students.map(s => {
-                const sGrades = db.filter(g => g.student === s);
-                let sum = 0, weightSum = 0;
-                
-                const tags = sGrades.map(g => {
-                    sum += (g.val * g.w);
-                    weightSum += g.w;
-                    return `<span class="grade-tag g-${g.val}" title="${g.cat} (waga ${g.w})">${g.val}</span>`;
+            const db = JSON.parse(localStorage.getItem('TITAN_GRADES')) || [];
+            document.getElementById('grades-body').innerHTML = students.map(student => {
+                if(currentUser.role === 'uczen' && student !== "Adamczyk Kamil") return '';
+                const sGrades = db.filter(g => g.s === student);
+                let sum = 0, weights = 0;
+                const html = sGrades.map(g => {
+                    sum += (g.v * g.w); weights += g.w;
+                    return `<span style="background:#eee; padding:2px 5px; border-radius:3px; margin-right:4px; cursor:help;" title="${g.c} (waga ${g.w})">${g.v}</span>`;
                 }).join('');
-
-                const avg = weightSum > 0 ? (sum / weightSum).toFixed(2) : '-';
-                
-                // Ukrywanie innych uczniów jeśli zalogowany uczeń
-                if(user.role === 'uczen' && s !== 'Adamczyk Kamil') return '';
-
-                return `<tr><td><strong>${s}</strong></td><td>${tags}</td><td style="color:var(--v-blue); font-weight:bold">${avg}</td></tr>`;
+                const avg = weights > 0 ? (sum / weights).toFixed(2) : '-';
+                return `<tr><td><strong>${student}</strong></td><td>${html}</td><td style="color:var(--v-blue); font-weight:bold">${avg}</td></tr>`;
             }).join('');
         }
 
-        // --- FREKWENCJA ---
+        function addNote() {
+            const s = document.getElementById('note-student').value;
+            const type = document.getElementById('note-type').value;
+            const text = document.getElementById('note-text').value;
+            if(!text) return;
+
+            const db = JSON.parse(localStorage.getItem('TITAN_NOTES')) || [];
+            db.push({ s, type, text, d: new Date().toLocaleString() });
+            localStorage.setItem('TITAN_NOTES', JSON.stringify(db));
+            document.getElementById('note-text').value = '';
+            renderNotes();
+        }
+
+        function renderNotes() {
+            const db = JSON.parse(localStorage.getItem('TITAN_NOTES')) || [];
+            document.getElementById('notes-list').innerHTML = db.reverse().map(n => {
+                if(currentUser.role === 'uczen' && n.s !== "Adamczyk Kamil") return '';
+                return `
+                <div class="card" style="border-left: 5px solid ${n.type=='plus'?'#27ae60':'#c0392b'}">
+                    <span class="badge ${n.type=='plus'?'bg-plus':'bg-minus'}">${n.type.toUpperCase()}</span>
+                    <strong>${n.s}</strong> <small style="float:right">${n.d}</small><br>
+                    <p style="margin:10px 0 0 0">${n.text}</p>
+                </div>`;
+            }).join('');
+        }
+
         function renderAtt() {
-            const body = document.getElementById('att-body');
-            const saved = JSON.parse(localStorage.getItem('v_att_db')) || {};
-            body.innerHTML = students.map((s, i) => `
-                <tr>
-                    <td>${i+1}</td>
-                    <td>${s}</td>
-                    <td>
-                        <select class="a-sel" data-s="${s}" onchange="this.style.background=this.value=='nb'?'#ffdada':'#d4f7d4'">
-                            <option value="">Wybierz...</option>
-                            <option value="ob" ${saved[s]=='ob'?'selected':''}>Obecność</option>
-                            <option value="nb" ${saved[s]=='nb'?'selected':''}>Nieobecność</option>
-                            <option value="sp" ${saved[s]=='sp'?'selected':''}>Spóźnienie</option>
-                        </select>
-                    </td>
-                </tr>
+            const saved = JSON.parse(localStorage.getItem('TITAN_ATT')) || {};
+            document.getElementById('att-body').innerHTML = students.map(s => `
+                <tr><td>${s}</td><td>
+                    <select class="att-s" data-s="${s}">
+                        <option value="ob" ${saved[s]=='ob'?'selected':''}>Obecny</option>
+                        <option value="nb" ${saved[s]=='nb'?'selected':''}>Nieobecny</option>
+                        <option value="sp" ${saved[s]=='sp'?'selected':''}>Spóźnienie</option>
+                    </select>
+                </td></tr>
             `).join('');
         }
 
         function saveAtt() {
             const data = {};
-            document.querySelectorAll('.a-sel').forEach(s => data[s.dataset.s] = s.value);
-            localStorage.setItem('v_att_db', JSON.stringify(data));
-            alert("Frekwencja zapisana.");
-        }
-
-        // --- SPRAWDZIANY ---
-        function addExam() {
-            const d = document.getElementById('ex-date').value;
-            const s = document.getElementById('ex-sub').value;
-            const t = document.getElementById('ex-desc').value;
-            if(!d || !s) return;
-            const ex = JSON.parse(localStorage.getItem('v_exams_db')) || [];
-            ex.push({d, s, t});
-            localStorage.setItem('v_exams_db', JSON.stringify(ex));
-            renderExams();
-        }
-
-        function renderExams() {
-            const list = document.getElementById('exam-list');
-            const ex = JSON.parse(localStorage.getItem('v_exams_db')) || [];
-            list.innerHTML = ex.map(e => `
-                <div class="card" style="border-left: 5px solid var(--v-blue)">
-                    <strong>${e.d}</strong> - ${e.s}<br><small>${e.t}</small>
-                </div>
-            `).join('');
+            document.querySelectorAll('.att-s').forEach(s => data[s.dataset.s] = s.value);
+            localStorage.setItem('TITAN_ATT', JSON.stringify(data));
+            alert("SYSTEM: Frekwencja zapisana.");
         }
 
         function showTab(id) {
@@ -311,21 +294,6 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + id).style.display = 'block';
             event.currentTarget.classList.add('active');
-        }
-
-        function addTeacher() {
-            const n = document.getElementById('t-name').value;
-            const s = document.getElementById('t-sub').value;
-            const list = JSON.parse(localStorage.getItem('v_t_db')) || [];
-            list.push({n, s});
-            localStorage.setItem('v_t_db', JSON.stringify(list));
-            renderTeachers();
-        }
-
-        function renderTeachers() {
-            const l = document.getElementById('t-list');
-            const db = JSON.parse(localStorage.getItem('v_t_db')) || [];
-            l.innerHTML = db.map(t => `<li>${t.n} (${t.s})</li>`).join('');
         }
     </script>
 </body>
