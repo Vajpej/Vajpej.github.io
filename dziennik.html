@@ -2,132 +2,188 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>V-Lite: Panel Nauczyciela</title>
+    <title>UONET+ MNSW | Panel Nauczyciela</title>
     <style>
-        :root { --v-green: #00875a; --v-dark: #2c3e50; --v-light: #f4f5f7; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; display: flex; height: 100vh; background: var(--v-light); }
-        
-        /* Boczny panel (Sidebar) */
-        #sidebar { width: 240px; background: var(--v-dark); color: white; display: none; flex-direction: column; }
-        .sidebar-header { padding: 20px; background: #1a252f; text-align: center; font-weight: bold; }
-        .nav-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #3e4f5f; }
-        .nav-item:hover { background: var(--v-green); }
+        :root { --v-green: #00875a; --v-header: #34495e; --v-bg: #ebedef; --v-text: #333; }
+        body { font-family: 'Segoe UI', Tahoma, Arial; margin: 0; display: flex; height: 100vh; background: var(--v-bg); color: var(--v-text); }
 
-        /* Obszar główny */
-        #main-content { flex-grow: 1; display: none; flex-direction: column; overflow-y: auto; }
-        header { background: white; padding: 15px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        /* Sidebar - Styl VULCAN */
+        #sidebar { width: 230px; background: #2c3e50; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .logo-area { padding: 20px; background: #1a252f; font-weight: bold; font-size: 18px; border-bottom: 3px solid var(--v-green); }
+        .menu-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #3e4f5f; font-size: 14px; transition: 0.2s; }
+        .menu-item:hover { background: var(--v-green); }
+        .active-menu { border-left: 5px solid var(--v-green); background: #3e4f5f; }
+
+        /* Main area */
+        #main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: white; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
+        .container { padding: 20px; overflow-y: auto; flex-grow: 1; }
+
+        /* Karty i Tabele */
+        .card { background: white; padding: 20px; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { margin-top: 0; font-size: 18px; color: var(--v-header); border-bottom: 1px solid #eee; padding-bottom: 10px; }
         
-        .container { padding: 30px; }
-        .card { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        
-        /* Tabela Ocen (Styl Vulcan) */
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; text-align: left; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
+        th { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; text-align: left; font-size: 12px; text-transform: uppercase; }
         td { border: 1px solid #dee2e6; padding: 8px; font-size: 14px; }
-        tr:hover { background-color: #f1f3f5; }
+        
+        /* Oceny i Frekwencja */
+        .grade-pill { display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; background: #e3f2fd; border-radius: 3px; font-weight: bold; margin-right: 4px; border: 1px solid #bbdefb; }
+        .input-grade { width: 35px; padding: 4px; text-align: center; border: 1px solid #ccc; }
+        
+        .presence-btn { padding: 5px 10px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 3px; font-size: 12px; }
+        .present { background: #d4edda; border-color: #c3e6cb; }
+        .absent { background: #f8d7da; border-color: #f5c6cb; }
 
-        .grade-input { width: 40px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 3px; }
-        .btn-save { background: var(--v-green); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px; }
-
-        /* Login */
-        #login-screen { width: 100%; display: flex; justify-content: center; align-items: center; background: #ebedef; }
-        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; }
+        .btn-main { background: var(--v-green); color: white; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .btn-main:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="color: var(--v-green); margin-top: 0;">VULCAN</h2>
-            <p>Logowanie dla nauczyciela</p>
-            <input type="text" id="u" placeholder="Nazwa użytkownika" style="width:100%; margin-bottom:10px; padding:10px;">
-            <input type="password" id="p" placeholder="Hasło" style="width:100%; margin-bottom:20px; padding:10px;">
-            <button onclick="initApp()" style="width:100%; background:var(--v-green); color:white; border:none; padding:12px; cursor:pointer;">Zaloguj</button>
-        </div>
-    </div>
-
     <div id="sidebar">
-        <div class="sidebar-header">UONET+ MNSW</div>
-        <div class="nav-item" onclick="showPage('dziennik')">Dziennik Oddziału</div>
-        <div class="nav-item" onclick="showPage('frekwencja')">Frekwencja</div>
-        <div class="nav-item" onclick="showPage('lekcje')">Lekcje</div>
-        <div class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff7675;">Wyloguj</div>
+        <div class="logo-area">VULCAN UONET+</div>
+        <div class="menu-item active-menu" onclick="showTab('dziennik')">Dziennik Lekcyjny</div>
+        <div class="menu-item" onclick="showTab('oceny')">Oceny i Arkusz</div>
+        <div class="menu-item" onclick="showTab('wiadomosci')">Wiadomości</div>
+        <div class="menu-item" onclick="showTab('uwagi')">Uwagi i Pochwały</div>
+        <div style="margin-top: auto;" class="menu-item" onclick="logout()">Wyloguj nauczyciela</div>
     </div>
 
-    <div id="main-content">
+    <div id="main">
         <header>
-            <div id="current-class">Klasa: 3A | Przedmiot: Informatyka</div>
-            <div>Użytkownik: <strong>Jan Kowalski (Nauczyciel)</strong></div>
+            <div>Lekcja: <strong>Informatyka</strong> | Klasa: <strong>3A</strong></div>
+            <div style="font-size: 13px;">Nauczyciel: <strong>Jan Kowalski</strong> | Data: <span id="current-date"></span></div>
         </header>
 
         <div class="container">
-            <div id="dziennik" class="page card">
-                <h3>Oceny cząstkowe</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 30px;">Lp.</th>
-                            <th>Nazwisko i Imię</th>
-                            <th>Oceny</th>
-                            <th style="width: 100px;">Średnia</th>
-                        </tr>
-                    </thead>
-                    <tbody id="student-list">
-                        </tbody>
-                </table>
-                <button class="btn-save" onclick="saveData()">Zapisz zmiany w dzienniku</button>
+            <div id="dziennik" class="tab-content">
+                <div class="card">
+                    <h2>Realizacja lekcji</h2>
+                    <label>Temat lekcji:</label><br>
+                    <input type="text" id="lesson-topic" style="width: 100%; padding: 10px; margin: 10px 0;" placeholder="Wpisz temat zajęć...">
+                    <button class="btn-main" onclick="saveLesson()">Zatwierdź temat i obecność</button>
+                </div>
+
+                <div class="card">
+                    <h2>Lista obecności</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Lp.</th><th>Nazwisko i Imię</th><th>Status</th><th>Uwagi</th></tr>
+                        </thead>
+                        <tbody id="attendance-list">
+                            </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div id="frekwencja" class="page card" style="display:none;">
-                <h3>Lista obecności - 07.03.2026</h3>
-                <p>Tu możesz zaznaczyć Nieobecności (N), Spóźnienia (S) lub Obecności (•).</p>
-                <div id="attendance-list"></div>
+            <div id="oceny" class="tab-content" style="display:none;">
+                <div class="card">
+                    <h2>Arkusz ocen bieżących</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Uczeń</th>
+                                <th>Oceny</th>
+                                <th>Średnia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grades-sheet">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="wiadomosci" class="tab-content" style="display:none;">
+                <div class="card">
+                    <h2>Nowa wiadomość (Moduł Wiadomości)</h2>
+                    <input type="text" placeholder="Odbiorca (np. rodzice klasy 3A)" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                    <textarea style="width: 100%; height: 200px; padding: 10px;" placeholder="Treść wiadomości..."></textarea>
+                    <br><br>
+                    <button class="btn-main">Wyślij do systemu</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const students = ["Adamczyk Kamil", "Baran Anna", "Cichy Michał", "Duda Karolina", "Ebacki Tomasz"];
+        const students = ["Adamczyk Kamil", "Borkowska Anna", "Czarnecki Piotr", "Dąbrowska Maria", "Ejsmont Igor"];
         
-        function initApp() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('sidebar').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'flex';
-            renderStudents();
+        // Inicjalizacja danych
+        function init() {
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString();
+            renderAttendance();
+            renderGrades();
         }
 
-        function renderStudents() {
-            const tbody = document.getElementById('student-list');
-            const savedData = JSON.parse(localStorage.getItem('teacher_grades') || '{}');
-            
-            tbody.innerHTML = students.map((name, index) => `
+        // Renderowanie Frekwencji
+        function renderAttendance() {
+            const list = document.getElementById('attendance-list');
+            list.innerHTML = students.map((s, i) => `
                 <tr>
-                    <td>${index + 1}</td>
-                    <td>${name}</td>
+                    <td>${i+1}</td>
+                    <td>${s}</td>
                     <td>
-                        <input type="text" class="grade-input" data-student="${name}" value="${savedData[name] || ''}" placeholder="+">
+                        <button class="presence-btn present" onclick="togglePresence(this)">Obecny</button>
                     </td>
-                    <td id="avg-${index}">-</td>
+                    <td><input type="text" placeholder="np. spóźnienie 5 min" style="border:none; border-bottom:1px solid #ddd; width:100%"></td>
                 </tr>
             `).join('');
         }
 
-        function saveData() {
-            const inputs = document.querySelectorAll('.grade-input');
-            let dataToSave = {};
-            inputs.forEach(input => {
-                dataToSave[input.dataset.student] = input.value;
-            });
-            localStorage.setItem('teacher_grades', JSON.stringify(dataToSave));
-            alert("Dane zostały zapisane pomyślnie!");
+        function togglePresence(btn) {
+            if(btn.innerText === "Obecny") {
+                btn.innerText = "Nieobecny";
+                btn.className = "presence-btn absent";
+            } else {
+                btn.innerText = "Obecny";
+                btn.className = "presence-btn present";
+            }
         }
 
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            document.getElementById(pageId).style.display = 'block';
+        // Renderowanie Ocen
+        function renderGrades() {
+            const sheet = document.getElementById('grades-sheet');
+            const savedGrades = JSON.parse(localStorage.getItem('teacher_data_grades') || '{}');
+            
+            sheet.innerHTML = students.map(s => {
+                const currentGrades = savedGrades[s] || '';
+                return `
+                    <tr>
+                        <td><strong>${s}</strong></td>
+                        <td>
+                            <input type="text" class="input-grade" data-u="${s}" value="${currentGrades}" onchange="updateGrades(this)">
+                            <small style="color:gray; margin-left:10px">Wpisz oceny po przecinku</small>
+                        </td>
+                        <td id="avg-${s}">-</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateGrades(el) {
+            const saved = JSON.parse(localStorage.getItem('teacher_data_grades') || '{}');
+            saved[el.dataset.u] = el.value;
+            localStorage.setItem('teacher_data_grades', JSON.stringify(saved));
+        }
+
+        // Nawigacja
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active-menu'));
+            document.getElementById(id).style.display = 'block';
+            event.currentTarget.classList.add('active-menu');
+        }
+
+        function saveLesson() {
+            const topic = document.getElementById('lesson-topic').value;
+            if(!topic) { alert("Musisz wpisać temat lekcji!"); return; }
+            alert("Lekcja została zapisana w dzienniku elektronicznym.");
         }
 
         function logout() { location.reload(); }
+
+        init();
     </script>
 </body>
 </html>
