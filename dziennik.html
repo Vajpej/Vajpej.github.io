@@ -2,134 +2,197 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>VULCAN UONET+ Ultimate System</title>
+    <title>VULCAN UONET+ Enterprise v3.0</title>
     <style>
-        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-warn: #ffab00; }
+        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-warn: #ffab00; --v-red: #d32f2f; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--v-light); display: flex; height: 100vh; overflow: hidden; }
         
         /* Sidebar */
-        #sidebar { width: 260px; background: var(--v-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-        .logo-area { padding: 20px; background: #1a252f; font-weight: bold; border-bottom: 3px solid var(--v-green); }
-        .nav-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #3e4f5f; font-size: 13px; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); }
-        .active-tab { background: var(--v-green) !important; }
+        #sidebar { width: 280px; background: var(--v-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+        .logo-area { padding: 25px; background: #1a252f; font-weight: bold; border-bottom: 4px solid var(--v-green); font-size: 20px; }
+        .nav-scroll { overflow-y: auto; flex-grow: 1; }
+        .nav-item { padding: 14px 20px; cursor: pointer; border-bottom: 1px solid #3e4f5f; font-size: 13px; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); padding-left: 30px; }
+        .active-tab { background: var(--v-green) !important; font-weight: bold; }
+        .nav-header { padding: 15px 20px 5px; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
 
         /* Main Content */
-        #main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        header { background: white; padding: 10px 25px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; align-items: center; }
-        .container { padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        #main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .container { padding: 30px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+        
+        /* Karty i Widżety */
+        .grid-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; position: relative; }
+        h2 { margin-top: 0; color: var(--v-dark); font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Tabele i Formularze */
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; border-radius: 8px; overflow: hidden; }
+        th { background: #f1f3f5; color: #444; border: 1px solid #dee2e6; padding: 12px; font-size: 12px; text-align: left; }
+        td { border: 1px solid #dee2e6; padding: 10px; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; margin-bottom: 10px; }
+        .btn-v { background: var(--v-green); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-v:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-        /* Plan Lekcji - Odwzorowanie zdjęcia */
-        .plan-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #8faadc; }
-        .plan-table th { background: #d9e1f2; color: #2c3e50; border: 1px solid #8faadc; padding: 10px; font-size: 14px; }
-        .plan-table td { border: 1px solid #8faadc; padding: 8px; text-align: center; font-size: 12px; font-weight: bold; }
-        .time-col { background: #f8f9fa; color: #1a252f; width: 40px; }
-        .hours-col { background: #f8f9fa; color: #1a252f; width: 100px; }
-
-        /* Formularze */
-        .presence-select { width: 100%; padding: 6px; border-radius: 3px; border: 1px solid #ccc; }
-        .presence-select.ob { background: #d4edda; color: #155724; }
-        .presence-select.nb { background: #f8d7da; color: #721c24; }
-        .btn-v { background: var(--v-green); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-dyr { background: var(--v-blue); }
+        /* Plan Lekcji (Zdjęcie) */
+        .plan-table { width: 100%; border: 2px solid #8faadc; }
+        .plan-table th { background: #d9e1f2; color: #2c3e50; border: 1px solid #8faadc; }
+        .plan-table td { border: 1px solid #8faadc; font-weight: bold; text-align: center; font-size: 11px; }
 
         /* Login */
-        #login-overlay { position: fixed; inset: 0; background: var(--v-dark); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .admin-edit-mode { border: 2px dashed var(--v-warn) !important; background: #fffdf0; }
+        #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #2c3e50 0%, #000 100%); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 50px; border-radius: 15px; width: 400px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div style="background:white; padding:40px; border-radius:8px; width:320px; text-align:center;">
-            <h1 style="color:var(--v-green); margin-bottom: 30px;">VULCAN LOGIN</h1>
-            <select id="role-select" style="width:100%; padding:12px; margin-bottom: 15px;">
-                <option value="nauczyciel">Nauczyciel (Pracownik)</option>
-                <option value="dyrektor">Dyrektor (Pełna edycja)</option>
+        <div class="login-box">
+            <h1 style="color:var(--v-green); font-size: 32px;">VULCAN Enterprise</h1>
+            <p style="color: #666;">System Zarządzania Jednostką Oświatową</p>
+            <select id="role-select" style="margin: 20px 0; padding: 15px;">
+                <option value="nauczyciel">👨‍🏫 Nauczyciel (Jan Kowalski)</option>
+                <option value="dyrektor">👑 Dyrektor (Adam Nowak)</option>
             </select>
-            <button onclick="login()" class="btn-v" style="width:100%;">Zaloguj do systemu</button>
+            <button onclick="login()" class="btn-v" style="width:100%; font-size: 16px;">Zaloguj systemowo</button>
         </div>
     </div>
 
     <div id="sidebar">
-        <div class="logo-area">UONET+ <span id="role-badge" style="font-size:10px; background:var(--v-warn); color:black; padding:2px 5px; border-radius:3px; float:right;"></span></div>
-        <div class="nav-item active-tab" onclick="showTab('plan')">📅 Plan Lekcji</div>
-        <div class="nav-item" onclick="showTab('lekcje')">📚 Obecność</div>
-        <div class="nav-item" onclick="showTab('arkusz')">📑 Oceny</div>
-        <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
-        <div class="nav-item" onclick="showTab('sprawdziany')">📝 Sprawdziany</div>
-        
-        <div id="dyr-section" style="display:none;">
-            <div style="padding:15px 20px; font-size:11px; color:var(--v-warn); background:#1a252f;">MODUŁ DYREKTORA</div>
-            <div class="nav-item" onclick="showTab('kadra')">👥 Dodaj Nauczyciela</div>
+        <div class="logo-area">UONET+ <span id="badge" style="font-size:10px; background:var(--v-warn); color:black; padding:3px 6px; border-radius:5px; margin-left:10px;"></span></div>
+        <div class="nav-scroll">
+            <div class="nav-header">Dziennik Oddziału</div>
+            <div class="nav-item active-tab" onclick="showTab('dashboard')">🏠 Pulpit Zarządzania</div>
+            <div class="nav-item" onclick="showTab('plan')">📅 Plan Lekcji (Foto)</div>
+            <div class="nav-item" onclick="showTab('lekcje')">📚 Obecność i Tematy</div>
+            <div class="nav-item" onclick="showTab('arkusz')">📑 Arkusz Ocen (Średnie)</div>
+            
+            <div class="nav-header">Komunikacja i Dyscyplina</div>
+            <div class="nav-item" onclick="showTab('wiadomosci')">✉️ Wiadomości i Ogłoszenia</div>
+            <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi i Pochwały</div>
+            <div class="nav-item" onclick="showTab('sprawdziany')">📝 Terminarz Sprawdzianów</div>
+            
+            <div id="dyr-menu" style="display:none;">
+                <div class="nav-header">Administracja Dyrektora</div>
+                <div class="nav-item" onclick="showTab('kadra')" style="color:var(--v-warn)">👥 Zarządzanie Kadrą</div>
+                <div class="nav-item" onclick="showTab('raporty')" style="color:var(--v-warn)">📊 Raporty i Statystyki</div>
+            </div>
         </div>
-        
-        <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:#ff7675; border-top: 1px solid #3e4f5f;">🔒 Wyloguj</div>
+        <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:var(--v-red); border-top:1px solid #3e4f5f;">🔒 Wyloguj</div>
     </div>
 
     <div id="main-content">
         <header>
             <div id="user-info"></div>
-            <div id="dyr-warning" style="display:none; color:var(--v-warn); font-weight:bold;">TRYB ADMINISTRATORA: EDYCJA AKTYWNA</div>
+            <div style="font-size: 13px; color: #777;">System v3.0 | 07.03.2026</div>
         </header>
 
         <div class="container">
-            <div id="tab-plan" class="tab-pane">
+            
+            <div id="tab-dashboard" class="tab-pane">
+                <div class="grid-dashboard">
+                    <div class="card">
+                        <h2>📌 Szybkie menu</h2>
+                        <button class="btn-v" style="width:100%; margin-bottom:10px;" onclick="showTab('lekcje')">Rozpocznij lekcję</button>
+                        <button class="btn-v" style="width:100%; background:var(--v-blue);" onclick="showTab('arkusz')">Wpisz oceny</button>
+                    </div>
+                    <div class="card">
+                        <h2>📊 Statystyki klasy 3A</h2>
+                        <p>Frekwencja: <strong>94.2%</strong></p>
+                        <p>Średnia ocen: <strong>4.12</strong></p>
+                    </div>
+                    <div id="dyr-stat" class="card" style="display:none; border:2px solid var(--v-warn);">
+                        <h2>👑 Raport Dyrektorski</h2>
+                        <p>Liczba etatów: 42</p>
+                        <p>Zastępstwa dziś: 3</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-plan" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h2>Tygodniowy Rozkład Zajęć</h2>
-                    <table class="plan-table">
+                    <h2>Plan Lekcji (Zgodny z obrazem)</h2>
+                    <table class="plan-table" id="main-plan">
                         <thead>
                             <tr><th>Nr</th><th>Godz</th><th>Poniedziałek</th><th>Wtorek</th><th>Środa</th><th>Czwartek</th><th>Piątek</th></tr>
                         </thead>
-                        <tbody id="timetable-body">
-                            </tbody>
+                        <tbody id="plan-body"></tbody>
                     </table>
-                    <button id="dyr-save-plan" class="btn-v btn-dyr" style="display:none; margin-top:15px;" onclick="saveGlobalPlan()">Zapisz zmiany w planie</button>
+                    <button id="plan-save-btn" class="btn-v" style="display:none; margin-top:15px; background:var(--v-blue);" onclick="savePlan()">Zapisz Plan (Dyrektor)</button>
+                </div>
+            </div>
+
+            <div id="tab-arkusz" class="tab-pane" style="display:none;">
+                <div class="card">
+                    <h2>Arkusz Ocen z Wyliczaniem Średniej</h2>
+                    <table>
+                        <thead><tr><th>Uczeń</th><th>Oceny (oddziel przecinkiem)</th><th>Średnia</th></tr></thead>
+                        <tbody id="grades-body"></tbody>
+                    </table>
+                    <button class="btn-v" style="margin-top:15px;" onclick="saveGrades()">Zapisz i Przelicz</button>
                 </div>
             </div>
 
             <div id="tab-lekcje" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h2>Lista obecności - Klasa 3A</h2>
+                    <h2>Realizacja Zajęć</h2>
+                    <input type="text" id="lesson-topic" placeholder="Wpisz temat lekcji...">
                     <table>
-                        <thead><tr><th style="width:40px;">Lp</th><th>Uczeń</th><th>Status</th></tr></thead>
+                        <thead><tr><th>Uczeń</th><th>Status obecności</th></tr></thead>
                         <tbody id="att-body"></tbody>
                     </table>
-                    <button class="btn-v" style="margin-top:20px;" onclick="saveGlobalAtt()">Zatwierdź frekwencję</button>
+                    <button class="btn-v" style="margin-top:15px;" onclick="saveAtt()">Zatwierdz Frekwencję</button>
+                </div>
+            </div>
+
+            <div id="tab-sprawdziany" class="tab-pane" style="display:none;">
+                <div class="card">
+                    <h2>Dodaj Sprawdzian</h2>
+                    <div style="display:flex; gap:10px;">
+                        <input type="date" id="ex-date">
+                        <input type="text" id="ex-title" placeholder="Nazwa (np. Sprawdzian z dynamiki)">
+                        <button class="btn-v" onclick="addExam()">Dodaj</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Lista nadchodzących sprawdzianów</h2>
+                    <ul id="exams-list" style="list-style:none; padding:0;"></ul>
                 </div>
             </div>
 
             <div id="tab-uwagi" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h2>Dodaj Uwagę</h2>
-                    <select id="note-student" style="margin-bottom:10px;"></select>
-                    <textarea id="note-text" placeholder="Treść uwagi..." style="width:100%; height:80px; margin-bottom:10px; padding:10px;"></textarea>
-                    <button class="btn-v" onclick="saveNote()">Dodaj do dziennika</button>
+                    <h2>Wpisz Uwagę / Pochwałę</h2>
+                    <select id="note-student"></select>
+                    <textarea id="note-content" placeholder="Opisz zachowanie..."></textarea>
+                    <button class="btn-v" onclick="addNote()">Dodaj wpis</button>
                 </div>
                 <div class="card">
-                    <h2>Ostatnie uwagi</h2>
-                    <div id="notes-display"></div>
+                    <h2>Rejestr zachowania</h2>
+                    <div id="notes-list"></div>
                 </div>
             </div>
 
             <div id="tab-kadra" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h2>Rejestr Nauczycieli</h2>
-                    <input type="text" id="t-name" placeholder="Imię i Nazwisko">
-                    <input type="text" id="t-sub" placeholder="Przedmiot">
-                    <button class="btn-v" style="margin-top:10px;" onclick="addTeacher()">Dodaj pracownika</button>
-                    <ul id="teachers-list" style="margin-top:20px;"></ul>
+                    <h2>Zarządzanie Pracownikami</h2>
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <input type="text" id="t-name" placeholder="Imię i Nazwisko">
+                        <input type="text" id="t-sub" placeholder="Przedmiot">
+                        <button class="btn-v" onclick="addTeacher()">Zatrudnij</button>
+                    </div>
+                    <ul id="teachers-list"></ul>
                 </div>
             </div>
+
         </div>
     </div>
 
     <script>
-        let currentRole = 'nauczyciel';
         const students = ["Adamczyk Kamil", "Borkowska Anna", "Cichy Michał", "Duda Karolina", "Ejsmont Igor", "Filipiak Jan"];
-        
-        // DANE Z TWOJEGO ZDJĘCIA
+        let currentRole = 'nauczyciel';
+
+        // PLAN ZE ZDJĘCIA
         const photoPlan = [
             ["1", "8:00- 8:45", "e_dla_bezp MB 60", "", "", "chemia KŁ 34", ""],
             ["2", "8:50- 9:35", "j.polski MB 60", "", "j.angielski AT 54", "zaj. wych. AT 60", "j.polski MB 60"],
@@ -144,61 +207,55 @@
         function login() {
             currentRole = document.getElementById('role-select').value;
             document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('role-badge').innerText = currentRole.toUpperCase();
-            document.getElementById('user-info').innerHTML = `Pracownik: <strong>${currentRole === 'dyrektor' ? 'Adam Nowak' : 'Jan Kowalski'}</strong>`;
+            document.getElementById('badge').innerText = currentRole.toUpperCase();
+            document.getElementById('user-info').innerHTML = `Zalogowano: <strong>${currentRole === 'dyrektor' ? 'Dyrektor Adam Nowak' : 'Jan Kowalski'}</strong>`;
             
             if(currentRole === 'dyrektor') {
-                document.getElementById('dyr-section').style.display = 'block';
-                document.getElementById('dyr-warning').style.display = 'block';
-                document.getElementById('dyr-save-plan').style.display = 'block';
+                document.getElementById('dyr-menu').style.display = 'block';
+                document.getElementById('dyr-stat').style.display = 'block';
+                document.getElementById('plan-save-btn').style.display = 'block';
             }
             initSystem();
         }
 
         function initSystem() {
             renderPlan();
-            renderAttList();
+            renderAtt();
+            renderGrades();
             renderNotes();
+            renderExams();
             renderTeachers();
-            // Wypełnij listy uczniów
             document.getElementById('note-student').innerHTML = students.map(s => `<option>${s}</option>`).join('');
         }
 
-        // --- PLAN LEKCJI (Dyrektor edytuje) ---
         function renderPlan() {
-            const body = document.getElementById('timetable-body');
-            const data = JSON.parse(localStorage.getItem('v_plan_final')) || photoPlan;
+            const body = document.getElementById('plan-body');
+            const data = JSON.parse(localStorage.getItem('v_plan_v3')) || photoPlan;
             const isDyr = currentRole === 'dyrektor';
-            
-            body.innerHTML = data.map((row, rIdx) => `
+            body.innerHTML = data.map(row => `
                 <tr>
-                    <td class="time-col">${row[0]}</td>
-                    <td class="hours-col ${isDyr?'admin-edit-mode':''}" contenteditable="${isDyr}">${row[1]}</td>
-                    ${row.slice(2).map(cell => `
-                        <td class="${isDyr?'admin-edit-mode':''}" contenteditable="${isDyr}">${cell}</td>
-                    `).join('')}
+                    <td style="background:#f8f9fa">${row[0]}</td>
+                    <td contenteditable="${isDyr}">${row[1]}</td>
+                    ${row.slice(2).map(c => `<td contenteditable="${isDyr}">${c}</td>`).join('')}
                 </tr>
             `).join('');
         }
 
-        function saveGlobalPlan() {
-            const rows = document.querySelectorAll('#timetable-body tr');
-            const newPlan = Array.from(rows).map(row => Array.from(row.cells).map(c => c.innerText));
-            localStorage.setItem('v_plan_final', JSON.stringify(newPlan));
-            alert("VULCAN: Plan lekcji został trwale zapisany.");
+        function savePlan() {
+            const rows = Array.from(document.querySelectorAll('#plan-body tr'));
+            const data = rows.map(r => Array.from(r.cells).map(c => c.innerText));
+            localStorage.setItem('v_plan_v3', JSON.stringify(data));
+            alert("VULCAN: Plan lekcji zaktualizowany.");
         }
 
-        // --- OBECNOŚĆ (Selecty) ---
-        function renderAttList() {
+        function renderAtt() {
             const body = document.getElementById('att-body');
-            const saved = JSON.parse(localStorage.getItem('v_att_final') || '{}');
-            
-            body.innerHTML = students.map((s, i) => `
+            const saved = JSON.parse(localStorage.getItem('v_att_v3') || '{}');
+            body.innerHTML = students.map(s => `
                 <tr>
-                    <td>${i+1}</td>
                     <td>${s}</td>
                     <td>
-                        <select class="presence-select" data-u="${s}" onchange="this.className='presence-select '+this.value">
+                        <select class="att-sel" data-s="${s}" onchange="this.style.background=this.value=='nb'?'#f8d7da':this.value=='ob'?'#d4edda':'white'">
                             <option value="">Wybierz obecność...</option>
                             <option value="ob" ${saved[s]=='ob'?'selected':''}>Obecność</option>
                             <option value="nb" ${saved[s]=='nb'?'selected':''}>Nieobecność</option>
@@ -208,53 +265,78 @@
                     </td>
                 </tr>
             `).join('');
-            document.querySelectorAll('.presence-select').forEach(s => s.className = 'presence-select ' + s.value);
         }
 
-        function saveGlobalAtt() {
+        function saveAtt() {
             const data = {};
-            document.querySelectorAll('.presence-select').forEach(s => data[s.dataset.u] = s.value);
-            localStorage.setItem('v_att_final', JSON.stringify(data));
-            alert("Frekwencja zapisana pomyślnie.");
+            document.querySelectorAll('.att-sel').forEach(s => data[s.dataset.s] = s.value);
+            localStorage.setItem('v_att_v3', JSON.stringify(data));
+            alert("Frekwencja zapisana.");
         }
 
-        // --- UWAGI ---
-        function saveNote() {
+        function renderGrades() {
+            const body = document.getElementById('grades-body');
+            const saved = JSON.parse(localStorage.getItem('v_grades_v3') || '{}');
+            body.innerHTML = students.map(s => {
+                const gradesStr = saved[s] || '';
+                const grades = gradesStr.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
+                const avg = grades.length ? (grades.reduce((a,b)=>a+b)/grades.length).toFixed(2) : '-';
+                return `<tr><td>${s}</td><td><input class="gr-in" data-s="${s}" value="${gradesStr}"></td><td><strong>${avg}</strong></td></tr>`;
+            }).join('');
+        }
+
+        function saveGrades() {
+            const data = {};
+            document.querySelectorAll('.gr-in').forEach(i => data[i.dataset.s] = i.value);
+            localStorage.setItem('v_grades_v3', JSON.stringify(data));
+            renderGrades();
+        }
+
+        function addExam() {
+            const d = document.getElementById('ex-date').value;
+            const t = document.getElementById('ex-title').value;
+            if(!d || !t) return;
+            const exams = JSON.parse(localStorage.getItem('v_exams_v3') || '[]');
+            exams.push({d, t});
+            localStorage.setItem('v_exams_v3', JSON.stringify(exams));
+            renderExams();
+        }
+
+        function renderExams() {
+            const list = document.getElementById('exams-list');
+            const exams = JSON.parse(localStorage.getItem('v_exams_v3') || '[]');
+            list.innerHTML = exams.map(e => `<li class="card" style="margin-bottom:10px; padding:10px;">📅 <strong>${e.d}</strong> - ${e.t}</li>`).join('');
+        }
+
+        function addNote() {
             const s = document.getElementById('note-student').value;
-            const t = document.getElementById('note-text').value;
-            if(!t) return;
-            const notes = JSON.parse(localStorage.getItem('v_notes_final') || '[]');
-            notes.push({ student: s, text: t, date: new Date().toLocaleDateString() });
-            localStorage.setItem('v_notes_final', JSON.stringify(notes));
-            document.getElementById('note-text').value = '';
+            const c = document.getElementById('note-content').value;
+            if(!c) return;
+            const notes = JSON.parse(localStorage.getItem('v_notes_v3') || '[]');
+            notes.push({s, c, date: new Date().toLocaleString()});
+            localStorage.setItem('v_notes_v3', JSON.stringify(notes));
             renderNotes();
         }
 
         function renderNotes() {
-            const display = document.getElementById('notes-display');
-            const notes = JSON.parse(localStorage.getItem('v_notes_final') || '[]');
-            display.innerHTML = notes.reverse().map(n => `
-                <div style="border-bottom:1px solid #eee; padding:10px 0;">
-                    <strong>${n.student}</strong> (${n.date}): ${n.text}
-                </div>
-            `).join('');
+            const list = document.getElementById('notes-list');
+            const notes = JSON.parse(localStorage.getItem('v_notes_v3') || '[]');
+            list.innerHTML = notes.reverse().map(n => `<div class="card" style="margin-bottom:10px;"><strong>${n.s}</strong> <small>${n.date}</small><br>${n.c}</div>`).join('');
         }
 
-        // --- KADRA ---
         function addTeacher() {
             const n = document.getElementById('t-name').value;
             const s = document.getElementById('t-sub').value;
-            if(!n) return;
-            const teachers = JSON.parse(localStorage.getItem('v_teachers_final') || '[]');
-            teachers.push({name: n, sub: s});
-            localStorage.setItem('v_teachers_final', JSON.stringify(teachers));
+            const teachers = JSON.parse(localStorage.getItem('v_teachers_v3') || '[]');
+            teachers.push({n, s});
+            localStorage.setItem('v_teachers_v3', JSON.stringify(teachers));
             renderTeachers();
         }
 
         function renderTeachers() {
             const list = document.getElementById('teachers-list');
-            const teachers = JSON.parse(localStorage.getItem('v_teachers_final') || '[]');
-            list.innerHTML = teachers.map(t => `<li><strong>${t.name}</strong> - ${t.sub}</li>`).join('');
+            const teachers = JSON.parse(localStorage.getItem('v_teachers_v3') || '[]');
+            list.innerHTML = teachers.map(t => `<li>👨‍🏫 <strong>${t.n}</strong> - ${t.sub}</li>`).join('');
         }
 
         function showTab(id) {
