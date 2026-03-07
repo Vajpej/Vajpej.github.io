@@ -2,35 +2,37 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>VULCAN UONET+ Full System</title>
+    <title>VULCAN UONET+ Ultimate | Panel Zarządzania</title>
     <style>
         :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-warn: #ffab00; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--v-light); display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar */
+        /* Sidebar & Layout */
         #sidebar { width: 250px; background: var(--v-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        #main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .logo-area { padding: 20px; background: #1a252f; font-weight: bold; border-bottom: 3px solid var(--v-green); }
-        .nav-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #3e4f5f; font-size: 14px; }
+        .nav-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #3e4f5f; font-size: 13px; }
         .nav-item:hover { background: rgba(255,255,255,0.1); }
         .active-tab { background: var(--v-green) !important; }
 
-        /* Main Content */
-        #main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: white; padding: 15px 25px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; }
-        .container { padding: 20px; overflow-y: auto; flex-grow: 1; }
-        
-        /* UI Elements */
+        header { background: white; padding: 10px 25px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; align-items: center; }
+        .container { padding: 20px; }
         .card { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { margin-top: 0; color: var(--v-dark); border-bottom: 2px solid var(--v-green); padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
-        th { background: #f8f9fa; font-size: 12px; }
-        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn { background: var(--v-green); color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .btn-blue { background: var(--v-blue); }
+
+        /* Plan Lekcji - Styl ze zdjęcia */
+        .plan-table { width: 100%; border-collapse: collapse; background: white; }
+        .plan-table th { background: #d9e1f2; color: #2c3e50; border: 1px solid #8faadc; padding: 8px; font-size: 14px; }
+        .plan-table td { border: 1px solid #8faadc; padding: 5px; text-align: center; font-size: 12px; font-weight: bold; min-width: 100px; }
+        .plan-table .time-col { background: #f8f9fa; color: #1a252f; width: 80px; }
         
-        /* Login Overlay */
+        /* Obecność - Select */
+        .presence-select { width: 100%; padding: 5px; border-radius: 3px; border: 1px solid #ccc; font-size: 12px; }
+        .presence-select.ob { background: #d4edda; }
+        .presence-select.nb { background: #f8d7da; }
+
+        /* Login */
         #login-overlay { position: fixed; inset: 0; background: var(--v-dark); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .admin-edit { border: 1px dashed var(--v-warn); padding: 5px; background: #fffdf0; }
     </style>
 </head>
 <body>
@@ -38,203 +40,186 @@
     <div id="login-overlay">
         <div style="background:white; padding:40px; border-radius:8px; width:300px; text-align:center;">
             <h1 style="color:var(--v-green)">VULCAN</h1>
-            <select id="role-select">
-                <option value="nauczyciel">Nauczyciel</option>
-                <option value="dyrektor">Dyrektor (Pełny dostęp)</option>
+            <select id="role-select" style="width:100%; padding:10px;">
+                <option value="nauczyciel">Nauczyciel (Kowalski)</option>
+                <option value="dyrektor">Dyrektor (Nowak)</option>
             </select>
-            <button class="btn" onclick="login()" style="width:100%; margin-top:15px;">Zaloguj</button>
+            <button onclick="login()" style="width:100%; margin-top:15px; background:var(--v-green); color:white; border:none; padding:10px; cursor:pointer;">Zaloguj</button>
         </div>
     </div>
 
     <div id="sidebar">
         <div class="logo-area">UONET+ <span id="role-tag" style="font-size:10px; background:var(--v-warn); color:black; padding:2px 5px; border-radius:3px;"></span></div>
-        <div class="nav-item active-tab" onclick="showTab('lekcje')">📚 Lekcja i Frekwencja</div>
-        <div class="nav-item" onclick="showTab('arkusz')">📑 Arkusz Ocen</div>
-        <div class="nav-item" onclick="showTab('wiadomosci')">✉️ Wiadomości</div>
-        <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
-        <div class="nav-item" onclick="showTab('sprawdziany')">📝 Sprawdziany</div>
-        <div class="nav-item" onclick="showTab('plan')">📅 Plan Lekcji</div>
-        <div id="admin-only" style="display:none;">
-            <div class="nav-item" style="background:#1a252f; color:var(--v-warn)" onclick="showTab('kadra')">⚙️ Zarządzanie (Dyrektor)</div>
+        <div class="nav-item active-tab" onclick="showTab('plan')">📅 Plan Lekcji</div>
+        <div class="nav-item" onclick="showTab('lekcje')">📚 Obecność</div>
+        <div class="nav-item" onclick="showTab('arkusz')">📑 Oceny</div>
+        <div id="dyr-menu" style="display:none; background: #2c2c2c;">
+            <div style="padding:10px; font-size:10px; color:var(--v-warn)">MODUŁ DYREKTORA</div>
+            <div class="nav-item" onclick="showTab('kadra')">👥 Dodaj Nauczyciela</div>
         </div>
         <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:#ff7675">Wyloguj</div>
     </div>
 
     <div id="main-content">
         <header>
-            <div id="user-info">Zalogowany: <strong>Jan Kowalski</strong></div>
-            <div>Data: 07.03.2026</div>
+            <div id="user-info"></div>
+            <div id="edit-msg" style="color:var(--v-warn); font-weight:bold; display:none;">⚠️ TRYB EDYCJI PLANU</div>
         </header>
 
         <div class="container">
-            <div id="tab-lekcje" class="tab-pane">
+            <div id="tab-plan" class="tab-pane">
                 <div class="card">
-                    <h2>Realizacja Zajęć</h2>
-                    <input type="text" id="lesson-topic" placeholder="Temat lekcji...">
-                    <button class="btn" onclick="alert('Temat zapisany!')">Zapisz temat</button>
-                </div>
-                <div class="card">
-                    <h2>Lista Obecności (Klasa 3A)</h2>
-                    <table id="attendance-table"></table>
-                </div>
-            </div>
-
-            <div id="tab-arkusz" class="tab-pane" style="display:none;">
-                <div class="card">
-                    <h2>Oceny Bieżące</h2>
-                    <table id="grades-table">
-                        <thead><tr><th>Uczeń</th><th>Oceny</th><th>Średnia</th></tr></thead>
-                        <tbody id="grades-body"></tbody>
+                    <h2>Plan Lekcji - Klasa 3A</h2>
+                    <table class="plan-table" id="timetable">
+                        <thead>
+                            <tr><th>Nr</th><th>Godz</th><th>Poniedziałek</th><th>Wtorek</th><th>Środa</th><th>Czwartek</th><th>Piątek</th></tr>
+                        </thead>
+                        <tbody id="timetable-body"></tbody>
                     </table>
-                    <button class="btn btn-blue" style="margin-top:10px;" onclick="saveGrades()">Synchronizuj z serwerem</button>
+                    <button id="save-plan-btn" class="btn" style="display:none; margin-top:10px; background:var(--v-blue); color:white; padding:10px;" onclick="saveTimetable()">Zapisz zmiany w planie</button>
                 </div>
             </div>
 
-            <div id="tab-wiadomosci" class="tab-pane" style="display:none;">
+            <div id="tab-lekcje" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h2>Nowa Wiadomość</h2>
-                    <input type="text" placeholder="Do: (np. Rodzice 3A)">
-                    <input type="text" placeholder="Temat">
-                    <textarea placeholder="Treść wiadomości..." style="height:100px;"></textarea>
-                    <button class="btn">Wyślij</button>
-                </div>
-            </div>
-
-            <div id="tab-uwagi" class="tab-pane" style="display:none;">
-                <div class="card">
-                    <h2>Dodaj Uwagę / Pochwałę</h2>
-                    <select id="u-student"></select>
-                    <select id="u-type"><option>Uwaga negatywna</option><option>Pochwała</option></select>
-                    <textarea id="u-content" placeholder="Treść uwagi..."></textarea>
-                    <button class="btn" onclick="addNote()">Dodaj do dziennika</button>
-                </div>
-                <div class="card">
-                    <h2>Rejestr uwag</h2>
-                    <ul id="notes-list"></ul>
-                </div>
-            </div>
-
-            <div id="tab-sprawdziany" class="tab-pane" style="display:none;">
-                <div class="card">
-                    <h2>Zaplanuj Sprawdzian</h2>
-                    <input type="date" id="ex-date">
-                    <input type="text" id="ex-title" placeholder="Nazwa (np. Klasówka z ułamków)">
-                    <button class="btn" onclick="addExam()">Dodaj do terminarza</button>
-                </div>
-                <div class="card">
-                    <h2>Nadchodzące sprawdziany</h2>
-                    <ul id="exams-list"></ul>
-                </div>
-            </div>
-
-            <div id="tab-plan" class="tab-pane" style="display:none;">
-                <div class="card">
-                    <h2>Tygodniowy Rozkład Zajęć</h2>
-                    <table>
-                        <tr><th>Godz.</th><th>Pon</th><th>Wt</th><th>Śr</th><th>Czw</th><th>Pt</th></tr>
-                        <tr><td>8:00</td><td>Mat 3A</td><td>-</td><td>Inf 2B</td><td>-</td><td>Mat 3A</td></tr>
-                        <tr><td>8:55</td><td>J.Pol 3A</td><td>WF</td><td>Rel</td><td>Mat 1A</td><td>-</td></tr>
+                    <h2>Sprawdzanie Obecności</h2>
+                    <table id="attendance-table">
+                        <thead><tr><th>Lp.</th><th>Uczeń</th><th>Status obecności</th></tr></thead>
+                        <tbody id="attendance-body"></tbody>
                     </table>
+                    <button onclick="saveAttendance()" style="background:var(--v-green); color:white; padding:10px; border:none; margin-top:15px; cursor:pointer;">Zapisz obecność na stałe</button>
                 </div>
             </div>
 
             <div id="tab-kadra" class="tab-pane" style="display:none;">
-                <div class="card" style="border: 2px solid var(--v-warn)">
-                    <h2>Zarządzanie Nauczycielami (Panel Dyrektora)</h2>
-                    <p>Statystyki zatrudnienia i etaty.</p>
-                    <ul>
-                        <li>Kowalski Jan - Etat 18/18</li>
-                        <li>Nowak Anna - Etat 20/18 (Nadgodziny)</li>
-                    </ul>
+                <div class="card">
+                    <h2>Zarządzanie Kadrą</h2>
+                    <input type="text" id="new-teacher-name" placeholder="Imię i Nazwisko">
+                    <input type="text" id="new-teacher-sub" placeholder="Przedmiot">
+                    <button onclick="addTeacher()" style="background:var(--v-green); color:white; padding:8px;">Dodaj do bazy</button>
+                    <ul id="teachers-list" style="margin-top:15px;"></ul>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const students = ["Adamczyk", "Bielik", "Cichy", "Duda", "Ejsmont"];
+        const students = ["Adamczyk Kamil", "Borkowska Anna", "Cichy Michał", "Duda Karolina", "Ejsmont Igor"];
         let userRole = 'nauczyciel';
+
+        const defaultPlan = [
+            ["1", "8:00- 8:45", "e_dla_bezp MB 60", "", "", "chemia KŁ 34", ""],
+            ["2", "8:50- 9:35", "j.polski MB 60", "", "j.angielski AT 54", "zaj. wych. AT 60", "j.polski MB 60"],
+            ["3", "9:45-10:30", "j.niemiecki JH 60", "fizyka UG 34", "wf MZ s2", "j.polski MB 60", "j.polski MB 60"]
+        ];
 
         function login() {
             userRole = document.getElementById('role-select').value;
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('role-tag').innerText = userRole.toUpperCase();
-            if(userRole === 'dyrektor') document.getElementById('admin-only').style.display = 'block';
+            document.getElementById('user-info').innerHTML = `Zalogowano jako: <strong>${userRole}</strong>`;
+            
+            if(userRole === 'dyrektor') {
+                document.getElementById('dyr-menu').style.display = 'block';
+                document.getElementById('edit-msg').style.display = 'block';
+                document.getElementById('save-plan-btn').style.display = 'block';
+            }
             initApp();
         }
 
         function initApp() {
+            renderTimetable();
             renderAttendance();
-            renderGrades();
-            renderStudentsInSelects();
-            loadFromStorage();
+            renderTeachers();
         }
 
-        function showTab(tabId) {
+        // --- PLAN LEKCJI (EDYCYJNY DLA DYREKTORA) ---
+        function renderTimetable() {
+            const body = document.getElementById('timetable-body');
+            const savedPlan = JSON.parse(localStorage.getItem('v_plan')) || defaultPlan;
+            const isDyr = userRole === 'dyrektor';
+
+            body.innerHTML = savedPlan.map((row, rIdx) => `
+                <tr>
+                    <td class="time-col">${row[0]}</td>
+                    <td class="time-col ${isDyr?'admin-edit':''}" contenteditable="${isDyr}">${row[1]}</td>
+                    ${row.slice(2).map((cell, cIdx) => `
+                        <td class="${isDyr?'admin-edit':''}" contenteditable="${isDyr}">${cell}</td>
+                    `).join('')}
+                </tr>
+            `).join('');
+        }
+
+        function saveTimetable() {
+            const rows = document.querySelectorAll('#timetable-body tr');
+            const newPlan = Array.from(rows).map(row => {
+                return Array.from(row.cells).map(cell => cell.innerText);
+            });
+            localStorage.setItem('v_plan', JSON.stringify(newPlan));
+            alert("Plan lekcji został zaktualizowany!");
+        }
+
+        // --- OBECNOŚĆ (ZAPISYWALNA) ---
+        function renderAttendance() {
+            const body = document.getElementById('attendance-body');
+            const savedAtt = JSON.parse(localStorage.getItem('v_attendance') || '{}');
+            
+            body.innerHTML = students.map((s, i) => {
+                const status = savedAtt[s] || "";
+                return `
+                <tr>
+                    <td>${i+1}</td>
+                    <td>${s}</td>
+                    <td>
+                        <select class="presence-select" onchange="styleSelect(this)" data-u="${s}">
+                            <option value="" ${status==''?'selected':''}>Wybierz obecność...</option>
+                            <option value="ob" ${status=='ob'?'selected':''}>Obecność</option>
+                            <option value="nb" ${status=='nb'?'selected':''}>Nieobecność</option>
+                            <option value="sp" ${status=='sp'?'selected':''}>Spóźnienie</option>
+                            <option value="zw" ${status=='zw'?'selected':''}>Zwolnienie</option>
+                        </select>
+                    </td>
+                </tr>
+            `}).join('');
+            
+            document.querySelectorAll('.presence-select').forEach(styleSelect);
+        }
+
+        function styleSelect(sel) {
+            sel.className = "presence-select " + sel.value;
+        }
+
+        function saveAttendance() {
+            const att = {};
+            document.querySelectorAll('.presence-select').forEach(sel => {
+                att[sel.dataset.u] = sel.value;
+            });
+            localStorage.setItem('v_attendance', JSON.stringify(att));
+            alert("Frekwencja została trwale zapisana w bazie danych.");
+        }
+
+        // --- KADRA ---
+        function addTeacher() {
+            const name = document.getElementById('new-teacher-name').value;
+            const sub = document.getElementById('new-teacher-sub').value;
+            if(!name) return;
+            const teachers = JSON.parse(localStorage.getItem('v_teachers') || '[]');
+            teachers.push({name, sub});
+            localStorage.setItem('v_teachers', JSON.stringify(teachers));
+            renderTeachers();
+        }
+
+        function renderTeachers() {
+            const list = document.getElementById('teachers-list');
+            const teachers = JSON.parse(localStorage.getItem('v_teachers') || []);
+            list.innerHTML = teachers.map(t => `<li><strong>${t.name}</strong> - ${t.sub}</li>`).join('');
+        }
+
+        function showTab(id) {
             document.querySelectorAll('.tab-pane').forEach(t => t.style.display = 'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-tab'));
-            document.getElementById('tab-' + tabId).style.display = 'block';
+            document.getElementById('tab-' + id).style.display = 'block';
             event.currentTarget.classList.add('active-tab');
-        }
-
-        // --- DZIENNIK & FREKWENCJA ---
-        function renderAttendance() {
-            const table = document.getElementById('attendance-table');
-            table.innerHTML = students.map(s => `
-                <tr><td>${s}</td><td><button onclick="this.style.background='#d4edda'; this.innerText='● Obecny'">Zaznacz obecność</button></td></tr>
-            `).join('');
-        }
-
-        // --- OCENY ---
-        function renderGrades() {
-            const body = document.getElementById('grades-body');
-            const saved = JSON.parse(localStorage.getItem('v_grades') || '{}');
-            body.innerHTML = students.map(s => `
-                <tr><td>${s}</td><td><input class="g-in" data-u="${s}" value="${saved[s] || ''}"></td><td>-</td></tr>
-            `).join('');
-        }
-
-        function saveGrades() {
-            const data = {};
-            document.querySelectorAll('.g-in').forEach(i => data[i.dataset.u] = i.value);
-            localStorage.setItem('v_grades', JSON.stringify(data));
-            alert("Oceny zapisane!");
-        }
-
-        // --- UWAGI ---
-        function renderStudentsInSelects() {
-            const select = document.getElementById('u-student');
-            select.innerHTML = students.map(s => `<option>${s}</option>`).join('');
-        }
-
-        function addNote() {
-            const student = document.getElementById('u-student').value;
-            const content = document.getElementById('u-content').value;
-            if(!content) return;
-            const notes = JSON.parse(localStorage.getItem('v_notes') || '[]');
-            notes.push(`${student}: ${content}`);
-            localStorage.setItem('v_notes', JSON.stringify(notes));
-            loadFromStorage();
-        }
-
-        // --- SPRAWDZIANY ---
-        function addExam() {
-            const date = document.getElementById('ex-date').value;
-            const title = document.getElementById('ex-title').value;
-            if(!date || !title) return;
-            const exams = JSON.parse(localStorage.getItem('v_exams') || '[]');
-            exams.push(`${date} - ${title}`);
-            localStorage.setItem('v_exams', JSON.stringify(exams));
-            loadFromStorage();
-        }
-
-        function loadFromStorage() {
-            const nList = document.getElementById('notes-list');
-            const eList = document.getElementById('exams-list');
-            const notes = JSON.parse(localStorage.getItem('v_notes') || '[]');
-            const exams = JSON.parse(localStorage.getItem('v_exams') || '[]');
-            nList.innerHTML = notes.map(n => `<li>${n}</li>`).join('');
-            eList.innerHTML = exams.map(e => `<li>${e}</li>`).join('');
         }
     </script>
 </body>
