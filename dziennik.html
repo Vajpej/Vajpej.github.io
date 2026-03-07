@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dziennik V-Lite</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
+        
+        /* Logowanie */
+        #login-page { height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--primary); color: white; }
+        .login-card { background: white; padding: 2rem; border-radius: 8px; color: #333; width: 300px; text-align: center; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: var(--accent); color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; width: 100%; }
+
+        /* Dashboard */
+        #main-app { display: none; }
+        nav { background: var(--primary); color: white; padding: 1rem; display: flex; gap: 15px; }
+        nav span { cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: 0.3s; }
+        nav span:hover { background: var(--accent); }
+        
+        .container { padding: 20px; max-width: 1000px; margin: auto; }
+        .section { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .active { display: block; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border-bottom: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.9em; }
+        .grade { background: #e1f5fe; font-weight: bold; border: 1px solid #b3e5fc; }
+    </style>
+</head>
+<body>
+
+    <div id="login-page">
+        <div class="login-card">
+            <h2>Dziennik V-Lite</h2>
+            <input type="text" id="user" placeholder="Login (admin)">
+            <input type="password" id="pass" placeholder="Hasło (123)">
+            <button onclick="login()">Zaloguj się</button>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <nav>
+            <strong style="margin-right: 20px;">V-Lite</strong>
+            <span onclick="showSection('oceny')">Oceny</span>
+            <span onclick="showSection('frekwencja')">Frekwencja</span>
+            <span onclick="showSection('terminarz')">Terminarz</span>
+            <span onclick="logout()" style="margin-left: auto; color: #ff7675;">Wyloguj</span>
+        </nav>
+
+        <div class="container">
+            <div id="oceny" class="section active">
+                <h3>Moje Oceny</h3>
+                <input type="text" id="subject-name" placeholder="Przedmiot" style="width: 200px;">
+                <input type="text" id="grade-val" placeholder="Ocena" style="width: 80px;">
+                <button onclick="addGrade()" style="width: auto;">Dodaj</button>
+                <table id="grades-table">
+                    <thead><tr><th>Przedmiot</th><th>Oceny</th></tr></thead>
+                    <tbody id="grades-body"></tbody>
+                </table>
+            </div>
+
+            <div id="frekwencja" class="section">
+                <h3>Frekwencja</h3>
+                <p>Status: <strong>95.4% obecności</strong></p>
+                <table>
+                    <tr><td>07.03.2026</td><td>Matematyka</td><td><span class="badge" style="background:#d4edda">Obecny</span></td></tr>
+                    <tr><td>07.03.2026</td><td>J. Polski</td><td><span class="badge" style="background:#fff3cd">Spóźnienie</span></td></tr>
+                </table>
+            </div>
+
+            <div id="terminarz" class="section">
+                <h3>Nadchodzące Sprawdziany</h3>
+                <ul id="exam-list">
+                    <li>12.03 - Klasówka z biologii</li>
+                    <li>15.03 - Kartkówka: Pan Tadeusz</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Logika logowania
+        function login() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(u === 'admin' && p === '123') {
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                loadGrades();
+            } else { alert('Błędne dane!'); }
+        }
+
+        function logout() { location.reload(); }
+
+        // Nawigacja między sekcjami
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Zarządzanie ocenami (LocalStorage)
+        function addGrade() {
+            const subject = document.getElementById('subject-name').value;
+            const grade = document.getElementById('grade-val').value;
+            if(!subject || !grade) return;
+
+            let data = JSON.parse(localStorage.getItem('grades') || '[]');
+            data.push({ subject, grade });
+            localStorage.setItem('grades', JSON.stringify(data));
+            
+            document.getElementById('subject-name').value = '';
+            document.getElementById('grade-val').value = '';
+            loadGrades();
+        }
+
+        function loadGrades() {
+            const data = JSON.parse(localStorage.getItem('grades') || '[]');
+            const body = document.getElementById('grades-body');
+            body.innerHTML = '';
+            data.forEach(item => {
+                body.innerHTML += `<tr><td>${item.subject}</td><td><span class="badge grade">${item.grade}</span></td></tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
