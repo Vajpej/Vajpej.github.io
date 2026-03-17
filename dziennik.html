@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>VULCAN RYBNIK v9.0 - STABLE CLOUD</title>
+    <title>VULCAN RYBNIK v9.1 - FIXED LOGIN</title>
     <style>
         :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-red: #e74c3c; }
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
@@ -20,741 +20,169 @@
         .container { padding: 20px; }
         .card { background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 15px; }
 
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-green { background: var(--v-green); color: white; }
-        .btn-red { background: var(--v-red); color: white; }
-        .btn-blue { background: var(--v-blue); color: white; }
-        
-        input, select, textarea { padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin: 2px; width: 100%; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #dee2e6; padding: 6px; text-align: center; }
-        
-        .item-row { border-left: 5px solid #ccc; padding: 10px; margin: 5px 0; background: #fff; position: relative; border: 1px solid #ddd; }
-        .del-btn { position: absolute; top: 5px; right: 5px; background: var(--v-red); color: white; border: none; cursor: pointer; font-size: 9px; padding: 2px 5px; }
-        .status-pill { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #eee; }
-    </style>
-</head>
-<body>
-
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="color:var(--v-green); margin-bottom:20px;">VULCAN RYBNIK v9.0</h2>
-            <input type="text" id="login-user" placeholder="Login">
-            <input type="password" id="login-pass" placeholder="Hasło">
-            <button class="btn btn-green" style="width:100%; margin-top:10px;" onclick="handleLogin()">ZALOGUJ</button>
-            <p id="sync-info" style="font-size:10px; color:orange; margin-top:15px;">Inicjalizacja połączenia...</p>
-        </div>
-    </div>
-
-    <div id="sidebar">
-        <div style="padding:15px; background:#000; font-weight:bold; color:var(--v-green)">TITAN v9.0 CLOUD</div>
-        <div class="nav-item active" onclick="showTab('plan')">📅 Plan Lekcji</div>
-        <div class="nav-item teacher-only" onclick="showTab('oceny')">📑 Oceny</div>
-        <div class="nav-item" onclick="showTab('terminarz')">📝 Sprawdziany</div>
-        <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
-        <div class="nav-item" onclick="showTab('kadra')">👨‍🏫 Nauczyciele</div>
-        <div id="admin-menu" style="display:none;">
-            <div class="nav-item" onclick="showTab('admin')" style="color:#ffbd2e">⚙️ Zarządzanie</div>
-        </div>
-        <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:var(--v-red)">🔒 Wyloguj</div>
-    </div>
-
-    <div id="main">
-        <header>
-            <div id="header-info">Zaloguj się...</div>
-            <div class="status-pill" id="cloud-status">Chmura: Aktywna</div>
-        </header>
-
-        <div class="container">
-            <!-- ADMIN -->
-            <div id="tab-admin" class="tab-pane" style="display:none;">
-                <div class="admin-grid">
-                    <div class="card">
-                        <h3>Dodaj Ucznia</h3>
-                        <input type="text" id="u-nam" placeholder="Imię i Nazwisko">
-                        <input type="text" id="u-log" placeholder="Login">
-                        <input type="text" id="u-pas" placeholder="Hasło">
-                        <button class="btn btn-green" style="width:100%" onclick="addUser('uczen')">DODAJ</button>
-                    </div>
-                    <div class="card">
-                        <h3>Dodaj Nauczyciela</h3>
-                        <input type="text" id="t-nam" placeholder="Imię i Nazwisko">
-                        <input type="text" id="t-log" placeholder="Login">
-                        <input type="text" id="t-pas" placeholder="Hasło">
-                        <button class="btn btn-blue" style="width:100%" onclick="addUser('nauczyciel')">DODAJ</button>
-                    </div>
-                </div>
-                <div class="card"><h3>Lista Kont</h3><div id="user-list-all"></div></div>
-            </div>
-
-            <!-- PLAN -->
-            <div id="tab-plan" class="tab-pane">
-                <div class="card">
-                    <h3>Plan Lekcji (Synchronizowany)</h3>
-                    <table><thead><tr><th>Nr</th><th>Godz</th><th>Pon</th><th>Wt</th><th>Śr</th><th>Czw</th><th>Pt</th></tr></thead><tbody id="plan-body"></tbody></table>
-                </div>
-            </div>
-
-            <!-- OCENY -->
-            <div id="tab-oceny" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Wstaw ocenę</h3>
-                    <select id="g-student"></select>
-                    <input type="number" id="g-val" placeholder="Ocena">
-                    <button class="btn btn-green" onclick="addGrade()">WSTAW</button>
-                </div>
-                <div class="card"><table><thead><tr><th>Uczeń</th><th>Oceny</th></tr></thead><tbody id="grades-body"></tbody></table></div>
-            </div>
-
-            <!-- SPRAWDZIANY -->
-            <div id="tab-terminarz" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Nowa Zapowiedź</h3>
-                    <input type="text" id="ex-sub" placeholder="Przedmiot">
-                    <input type="text" id="ex-desc" placeholder="Temat">
-                    <button class="btn btn-blue" style="width:100%" onclick="addExam()">DODAJ</button>
-                </div>
-                <div id="exams-container"></div>
-            </div>
-
-            <!-- UWAGI -->
-            <div id="tab-uwagi" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Wpisz Uwagę</h3>
-                    <select id="n-student"></select>
-                    <textarea id="n-text" placeholder="Treść..."></textarea>
-                    <button class="btn btn-red" style="width:100%" onclick="addNote()">WYŚLIJ</button>
-                </div>
-                <div id="notes-container"></div>
-            </div>
-            
-            <!-- KADRA -->
-            <div id="tab-kadra" class="tab-pane" style="display:none;">
-                <div class="card"><table><thead><tr><th>Nauczyciel</th><th>Rola</th></tr></thead><tbody id="kadra-body"></tbody></table></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // --- SYNCHRONIZACJA (Bez Twojej ingerencji) ---
-        const SYNC_ID = "rybnik_stable_v9";
-        const API = `https://api.keyvalue.xyz/${SYNC_ID}/data`;
-
-        let db = {
-            users: [{name: 'Dyrektor', l: 'KRZZUP25', p: 'dyrektorsp1rybnik', role: 'admin'}],
-            grades: [], notes: [], exams: [],
-            plan: Array(10).fill().map((_, i) => [(i+1), `${8+i}:00`, "", "", "", "", ""])
-        };
-        let currentUser = null;
-
-        async function syncLoad() {
-            try {
-                const r = await fetch(API);
-                if(r.ok) {
-                    db = await r.json();
-                    renderAll();
-                    document.getElementById('sync-info').innerText = "Baza gotowa. Zaloguj się.";
-                    document.getElementById('sync-info').style.color = "green";
-                }
-            } catch(e) {}
-        }
-
-        async function syncSave() {
-            document.getElementById('cloud-status').innerText = "Zapisywanie...";
-            await fetch(API, { method: 'POST', body: JSON.stringify(db) });
-            document.getElementById('cloud-status').innerText = "Chmura: Aktywna";
-        }
-
-        // --- LOGIKA ---
-        function handleLogin() {
-            const u = document.getElementById('login-user').value;
-            const p = document.getElementById('login-pass').value;
-            const user = db.users.find(x => x.l === u && x.p === p);
-            
-            if(user) {
-                currentUser = user;
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('header-info').innerHTML = `Użytkownik: <b>${user.name}</b>`;
-                if(user.role === 'admin') document.getElementById('admin-menu').style.display = 'block';
-                if(user.role === 'uczen') document.querySelectorAll('.teacher-only').forEach(x => x.style.display='none');
-                renderAll();
-            } else { alert("BŁĄD: Nie znaleziono użytkownika w chmurze!"); }
-        }
-
-        function addUser(role) {
-            const n = role === 'uczen' ? 'u-nam' : 't-nam';
-            const l = role === 'uczen' ? 'u-log' : 't-log';
-            const p = role === 'uczen' ? 'u-pas' : 't-pas';
-            db.users.push({
-                id: Date.now(),
-                name: document.getElementById(n).value,
-                l: document.getElementById(l).value,
-                p: document.getElementById(p).value,
-                role: role
-            });
-            syncSave();
-        }
-
-        function addGrade() {
-            db.grades.push({id: Date.now(), s: document.getElementById('g-student').value, v: document.getElementById('g-val').value});
-            syncSave();
-        }
-
-        function addExam() {
-            db.exams.push({id: Date.now(), t: document.getElementById('ex-sub').value, d: document.getElementById('ex-desc').value});
-            syncSave();
-        }
-
-        function addNote() {
-            db.notes.push({id: Date.now(), s: document.getElementById('n-student').value, t: document.getElementById('n-text').value});
-            syncSave();
-        }
-
-        function del(type, id) {
-            db[type] = db[type].filter(x => x.id !== id);
-            syncSave();
-        }
-
-        // --- RENDER ---
-        function renderAll() {
-            const students = db.users.filter(x => x.role === 'uczen');
-            
-            // Oceny
-            document.getElementById('grades-body').innerHTML = students.map(s => `
-                <tr><td>${s.name}</td><td>${db.grades.filter(g => g.s === s.name).map(g => `
-                    <span class="status-pill">${g.v} <b style="color:red;cursor:pointer" onclick="del('grades',${g.id})">x</b></span>
-                `).join('')}</td></tr>
-            `).join('');
-
-            // Plan
-            const isA = currentUser?.role === 'admin';
-            document.getElementById('plan-body').innerHTML = db.plan.map((row, r) => `
-                <tr><td>${row[0]}</td><td>${row[1]}</td>
-                ${row.slice(2).map((c, i) => `<td contenteditable="${isA}" onblur="db.plan[${r}][${i+2}]=this.innerText;syncSave()">${c}</td>`).join('')}</tr>
-            `).join('');
-
-            // Inne
-            document.getElementById('exams-container').innerHTML = db.exams.map(e => `<div class="item-row"><b>${e.t}</b>: ${e.d} <button class="del-btn" onclick="del('exams',${e.id})">X</button></div>`).join('');
-            document.getElementById('notes-container').innerHTML = db.notes.map(n => `<div class="item-row">Dla: ${n.s} - ${n.t} <button class="del-btn" onclick="del('notes',${n.id})">X</button></div>`).join('');
-            document.getElementById('user-list-all').innerHTML = db.users.map(u => `<div>${u.name} (${u.role})</div>`).join('');
-            document.getElementById('kadra-body').innerHTML = db.users.filter(u => u.role !== 'uczen').map(u => `<tr><td>${u.name}</td><td>${u.role}</td></tr>`).join('');
-            
-            // Selecty
-            const opts = students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            document.getElementById('g-student').innerHTML = opts;
-            document.getElementById('n-student').innerHTML = opts;
-        }
-
-        function showTab(id) {
-            document.querySelectorAll('.tab-pane').forEach(x => x.style.display = 'none');
-            document.getElementById('tab-'+id).style.display = 'block';
-        }
-
-        // Start
-        syncLoad();
-        setInterval(syncLoad, 3000); // Odświeżaj co 3 sekundy
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>VULCAN RYBNIK v9.0 - STABLE CLOUD</title>
-    <style>
-        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-red: #e74c3c; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
-        body { margin: 0; background: var(--v-light); display: flex; height: 100vh; overflow: hidden; }
-
-        #login-screen { position: fixed; inset: 0; background: var(--v-dark); z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .login-box { background: white; padding: 25px; border-radius: 8px; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
-        
-        #sidebar { width: 230px; background: #1a252f; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-        .nav-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #2c3e50; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover, .active { background: var(--v-green); }
-        
-        #main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        header { background: white; padding: 10px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 20px; }
-        .card { background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 15px; }
-
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-green { background: var(--v-green); color: white; }
-        .btn-red { background: var(--v-red); color: white; }
-        .btn-blue { background: var(--v-blue); color: white; }
-        
-        input, select, textarea { padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin: 2px; width: 100%; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #dee2e6; padding: 6px; text-align: center; }
-        
-        .item-row { border-left: 5px solid #ccc; padding: 10px; margin: 5px 0; background: #fff; position: relative; border: 1px solid #ddd; }
-        .del-btn { position: absolute; top: 5px; right: 5px; background: var(--v-red); color: white; border: none; cursor: pointer; font-size: 9px; padding: 2px 5px; }
-        .status-pill { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #eee; }
-    </style>
-</head>
-<body>
-
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="color:var(--v-green); margin-bottom:20px;">VULCAN RYBNIK v9.0</h2>
-            <input type="text" id="login-user" placeholder="Login">
-            <input type="password" id="login-pass" placeholder="Hasło">
-            <button class="btn btn-green" style="width:100%; margin-top:10px;" onclick="handleLogin()">ZALOGUJ</button>
-            <p id="sync-info" style="font-size:10px; color:orange; margin-top:15px;">Inicjalizacja połączenia...</p>
-        </div>
-    </div>
-
-    <div id="sidebar">
-        <div style="padding:15px; background:#000; font-weight:bold; color:var(--v-green)">TITAN v9.0 CLOUD</div>
-        <div class="nav-item active" onclick="showTab('plan')">📅 Plan Lekcji</div>
-        <div class="nav-item teacher-only" onclick="showTab('oceny')">📑 Oceny</div>
-        <div class="nav-item" onclick="showTab('terminarz')">📝 Sprawdziany</div>
-        <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
-        <div class="nav-item" onclick="showTab('kadra')">👨‍🏫 Nauczyciele</div>
-        <div id="admin-menu" style="display:none;">
-            <div class="nav-item" onclick="showTab('admin')" style="color:#ffbd2e">⚙️ Zarządzanie</div>
-        </div>
-        <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:var(--v-red)">🔒 Wyloguj</div>
-    </div>
-
-    <div id="main">
-        <header>
-            <div id="header-info">Zaloguj się...</div>
-            <div class="status-pill" id="cloud-status">Chmura: Aktywna</div>
-        </header>
-
-        <div class="container">
-            <!-- ADMIN -->
-            <div id="tab-admin" class="tab-pane" style="display:none;">
-                <div class="admin-grid">
-                    <div class="card">
-                        <h3>Dodaj Ucznia</h3>
-                        <input type="text" id="u-nam" placeholder="Imię i Nazwisko">
-                        <input type="text" id="u-log" placeholder="Login">
-                        <input type="text" id="u-pas" placeholder="Hasło">
-                        <button class="btn btn-green" style="width:100%" onclick="addUser('uczen')">DODAJ</button>
-                    </div>
-                    <div class="card">
-                        <h3>Dodaj Nauczyciela</h3>
-                        <input type="text" id="t-nam" placeholder="Imię i Nazwisko">
-                        <input type="text" id="t-log" placeholder="Login">
-                        <input type="text" id="t-pas" placeholder="Hasło">
-                        <button class="btn btn-blue" style="width:100%" onclick="addUser('nauczyciel')">DODAJ</button>
-                    </div>
-                </div>
-                <div class="card"><h3>Lista Kont</h3><div id="user-list-all"></div></div>
-            </div>
-
-            <!-- PLAN -->
-            <div id="tab-plan" class="tab-pane">
-                <div class="card">
-                    <h3>Plan Lekcji (Synchronizowany)</h3>
-                    <table><thead><tr><th>Nr</th><th>Godz</th><th>Pon</th><th>Wt</th><th>Śr</th><th>Czw</th><th>Pt</th></tr></thead><tbody id="plan-body"></tbody></table>
-                </div>
-            </div>
-
-            <!-- OCENY -->
-            <div id="tab-oceny" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Wstaw ocenę</h3>
-                    <select id="g-student"></select>
-                    <input type="number" id="g-val" placeholder="Ocena">
-                    <button class="btn btn-green" onclick="addGrade()">WSTAW</button>
-                </div>
-                <div class="card"><table><thead><tr><th>Uczeń</th><th>Oceny</th></tr></thead><tbody id="grades-body"></tbody></table></div>
-            </div>
-
-            <!-- SPRAWDZIANY -->
-            <div id="tab-terminarz" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Nowa Zapowiedź</h3>
-                    <input type="text" id="ex-sub" placeholder="Przedmiot">
-                    <input type="text" id="ex-desc" placeholder="Temat">
-                    <button class="btn btn-blue" style="width:100%" onclick="addExam()">DODAJ</button>
-                </div>
-                <div id="exams-container"></div>
-            </div>
-
-            <!-- UWAGI -->
-            <div id="tab-uwagi" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Wpisz Uwagę</h3>
-                    <select id="n-student"></select>
-                    <textarea id="n-text" placeholder="Treść..."></textarea>
-                    <button class="btn btn-red" style="width:100%" onclick="addNote()">WYŚLIJ</button>
-                </div>
-                <div id="notes-container"></div>
-            </div>
-            
-            <!-- KADRA -->
-            <div id="tab-kadra" class="tab-pane" style="display:none;">
-                <div class="card"><table><thead><tr><th>Nauczyciel</th><th>Rola</th></tr></thead><tbody id="kadra-body"></tbody></table></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // --- SYNCHRONIZACJA (Bez Twojej ingerencji) ---
-        const SYNC_ID = "rybnik_stable_v9";
-        const API = `https://api.keyvalue.xyz/${SYNC_ID}/data`;
-
-        let db = {
-            users: [{name: 'Dyrektor', l: 'KRZZUP25', p: 'dyrektorsp1rybnik', role: 'admin'}],
-            grades: [], notes: [], exams: [],
-            plan: Array(10).fill().map((_, i) => [(i+1), `${8+i}:00`, "", "", "", "", ""])
-        };
-        let currentUser = null;
-
-        async function syncLoad() {
-            try {
-                const r = await fetch(API);
-                if(r.ok) {
-                    db = await r.json();
-                    renderAll();
-                    document.getElementById('sync-info').innerText = "Baza gotowa. Zaloguj się.";
-                    document.getElementById('sync-info').style.color = "green";
-                }
-            } catch(e) {}
-        }
-
-        async function syncSave() {
-            document.getElementById('cloud-status').innerText = "Zapisywanie...";
-            await fetch(API, { method: 'POST', body: JSON.stringify(db) });
-            document.getElementById('cloud-status').innerText = "Chmura: Aktywna";
-        }
-
-        // --- LOGIKA ---
-        function handleLogin() {
-            const u = document.getElementById('login-user').value;
-            const p = document.getElementById('login-pass').value;
-            const user = db.users.find(x => x.l === u && x.p === p);
-            
-            if(user) {
-                currentUser = user;
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('header-info').innerHTML = `Użytkownik: <b>${user.name}</b>`;
-                if(user.role === 'admin') document.getElementById('admin-menu').style.display = 'block';
-                if(user.role === 'uczen') document.querySelectorAll('.teacher-only').forEach(x => x.style.display='none');
-                renderAll();
-            } else { alert("BŁĄD: Nie znaleziono użytkownika w chmurze!"); }
-        }
-
-        function addUser(role) {
-            const n = role === 'uczen' ? 'u-nam' : 't-nam';
-            const l = role === 'uczen' ? 'u-log' : 't-log';
-            const p = role === 'uczen' ? 'u-pas' : 't-pas';
-            db.users.push({
-                id: Date.now(),
-                name: document.getElementById(n).value,
-                l: document.getElementById(l).value,
-                p: document.getElementById(p).value,
-                role: role
-            });
-            syncSave();
-        }
-
-        function addGrade() {
-            db.grades.push({id: Date.now(), s: document.getElementById('g-student').value, v: document.getElementById('g-val').value});
-            syncSave();
-        }
-
-        function addExam() {
-            db.exams.push({id: Date.now(), t: document.getElementById('ex-sub').value, d: document.getElementById('ex-desc').value});
-            syncSave();
-        }
-
-        function addNote() {
-            db.notes.push({id: Date.now(), s: document.getElementById('n-student').value, t: document.getElementById('n-text').value});
-            syncSave();
-        }
-
-        function del(type, id) {
-            db[type] = db[type].filter(x => x.id !== id);
-            syncSave();
-        }
-
-        // --- RENDER ---
-        function renderAll() {
-            const students = db.users.filter(x => x.role === 'uczen');
-            
-            // Oceny
-            document.getElementById('grades-body').innerHTML = students.map(s => `
-                <tr><td>${s.name}</td><td>${db.grades.filter(g => g.s === s.name).map(g => `
-                    <span class="status-pill">${g.v} <b style="color:red;cursor:pointer" onclick="del('grades',${g.id})">x</b></span>
-                `).join('')}</td></tr>
-            `).join('');
-
-            // Plan
-            const isA = currentUser?.role === 'admin';
-            document.getElementById('plan-body').innerHTML = db.plan.map((row, r) => `
-                <tr><td>${row[0]}</td><td>${row[1]}</td>
-                ${row.slice(2).map((c, i) => `<td contenteditable="${isA}" onblur="db.plan[${r}][${i+2}]=this.innerText;syncSave()">${c}</td>`).join('')}</tr>
-            `).join('');
-
-            // Inne
-            document.getElementById('exams-container').innerHTML = db.exams.map(e => `<div class="item-row"><b>${e.t}</b>: ${e.d} <button class="del-btn" onclick="del('exams',${e.id})">X</button></div>`).join('');
-            document.getElementById('notes-container').innerHTML = db.notes.map(n => `<div class="item-row">Dla: ${n.s} - ${n.t} <button class="del-btn" onclick="del('notes',${n.id})">X</button></div>`).join('');
-            document.getElementById('user-list-all').innerHTML = db.users.map(u => `<div>${u.name} (${u.role})</div>`).join('');
-            document.getElementById('kadra-body').innerHTML = db.users.filter(u => u.role !== 'uczen').map(u => `<tr><td>${u.name}</td><td>${u.role}</td></tr>`).join('');
-            
-            // Selecty
-            const opts = students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            document.getElementById('g-student').innerHTML = opts;
-            document.getElementById('n-student').innerHTML = opts;
-        }
-
-        function showTab(id) {
-            document.querySelectorAll('.tab-pane').forEach(x => x.style.display = 'none');
-            document.getElementById('tab-'+id).style.display = 'block';
-        }
-
-        // Start
-        syncLoad();
-        setInterval(syncLoad, 3000); // Odświeżaj co 3 sekundy
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>VULCAN RYBNIK - TOTAL SYNC v11</title>
-    <style>
-        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-red: #e74c3c; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; font-size: 11px; }
-        body { margin: 0; background: var(--v-light); display: flex; height: 100vh; overflow: hidden; }
-
-        /* GUI */
-        #login-screen { position: fixed; inset: 0; background: var(--v-dark); z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 25px; border-radius: 8px; width: 300px; text-align: center; }
-        
-        #sidebar { width: 220px; background: #1a252f; color: white; display: flex; flex-direction: column; }
-        .nav-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #2c3e50; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover, .active { background: var(--v-green); }
-        
-        #main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        header { background: white; padding: 10px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 20px; }
-        .card { background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 15px; }
-
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; }
         .btn-green { background: var(--v-green); }
-        .btn-red { background: var(--v-red); }
         .btn-blue { background: var(--v-blue); }
+        .btn-red { background: var(--v-red); }
         
-        input, select, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin: 4px 0; width: 100%; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
+        input, select, textarea { padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin: 2px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #dee2e6; padding: 6px; text-align: center; }
         
-        .item-row { border-left: 5px solid var(--v-blue); padding: 10px; margin: 8px 0; background: #fff; position: relative; border: 1px solid #ddd; }
-        .del-btn { position: absolute; top: 5px; right: 5px; background: var(--v-red); border: none; color: white; cursor: pointer; border-radius: 3px; font-size: 9px; }
-        .sync-status { font-size: 10px; color: #888; }
+        .item-row { border-left: 5px solid #ccc; padding: 10px; margin: 5px 0; background: #fff; position: relative; border: 1px solid #ddd; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: var(--v-red); color: white; border: none; cursor: pointer; font-size: 9px; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="color:var(--v-green)">VULCAN RYBNIK SYNC</h2>
-            <input type="text" id="l-u" placeholder="Login">
-            <input type="password" id="l-p" placeholder="Hasło">
-            <button class="btn btn-green" style="width:100%; margin-top:10px;" onclick="login()">ZALOGUJ SIĘ</button>
-            <p id="conn-info" style="margin-top:10px; font-size:10px; color:orange;">Łączenie z serwerem Rybnik...</p>
+            <h2 style="color:var(--v-green)">VULCAN RYBNIK v9.1</h2>
+            <input type="text" id="login-user" placeholder="Login">
+            <input type="password" id="login-pass" placeholder="Hasło">
+            <button class="btn btn-green" style="width:100%; margin-top:10px;" onclick="handleLogin()">ZALOGUJ</button>
+            <p id="sync-info" style="font-size:10px; color:orange; margin-top:15px;">Pobieranie bazy kont...</p>
         </div>
     </div>
 
     <div id="sidebar">
-        <div style="padding:20px; background:#000; font-weight:bold; color:var(--v-green)">TITAN SYNC v11</div>
+        <div style="padding:15px; background:#000; font-weight:bold; color:var(--v-green)">TITAN v9.1 CLOUD</div>
         <div class="nav-item active" onclick="showTab('plan')">📅 Plan Lekcji</div>
         <div class="nav-item teacher-only" onclick="showTab('oceny')">📑 Oceny</div>
         <div class="nav-item" onclick="showTab('terminarz')">📝 Sprawdziany</div>
         <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
-        <div id="admin-menu" style="display:none;">
-            <div class="nav-item" onclick="showTab('admin')" style="color:#ffbd2e">⚙️ Zarządzanie Bazą</div>
-        </div>
+        <div id="admin-menu" style="display:none;"><div class="nav-item" onclick="showTab('admin')" style="color:#ffbd2e">⚙️ Zarządzanie</div></div>
         <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:var(--v-red)">🔒 Wyloguj</div>
     </div>
 
     <div id="main">
-        <header>
-            <div id="user-display">Witaj...</div>
-            <div class="sync-status" id="sync-indicator">Synchronizacja: OK</div>
-        </header>
+        <header><div id="header-info">Zaloguj się...</div><div id="cloud-status">Chmura: Aktywna</div></header>
         <div class="container">
 
             <div id="tab-admin" class="tab-pane" style="display:none;">
-                <div class="admin-grid">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                     <div class="card">
                         <h3>Dodaj Ucznia</h3>
-                        <input type="text" id="au-n" placeholder="Imię i Nazwisko">
-                        <input type="text" id="au-l" placeholder="Login">
-                        <input type="text" id="au-p" placeholder="Hasło">
-                        <button class="btn btn-green" style="width:100%" onclick="addUser('uczen')">DODAJ UCZNIA</button>
+                        <input id="u-nam" placeholder="Imię i Nazwisko">
+                        <input id="u-log" placeholder="Login">
+                        <input id="u-pas" placeholder="Hasło">
+                        <button class="btn btn-green" style="width:100%" onclick="addUser('uczen')">DODAJ</button>
                     </div>
                     <div class="card">
                         <h3>Dodaj Nauczyciela</h3>
-                        <input type="text" id="at-n" placeholder="Imię i Nazwisko">
-                        <input type="text" id="at-l" placeholder="Login">
-                        <input type="text" id="at-p" placeholder="Hasło">
-                        <button class="btn btn-blue" style="width:100%" onclick="addUser('nauczyciel')">DODAJ NAUCZYCIELA</button>
+                        <input id="t-nam" placeholder="Imię i Nazwisko">
+                        <input id="t-log" placeholder="Login">
+                        <input id="t-pas" placeholder="Hasło">
+                        <button class="btn btn-blue" style="width:100%" onclick="addUser('nauczyciel')">DODAJ</button>
                     </div>
+                </div>
+            </div>
+
+            <div id="tab-plan" class="tab-pane">
+                <div class="card">
+                    <h3>Plan Lekcji</h3>
+                    <table><thead><tr><th>Godz</th><th>Pon</th><th>Wt</th><th>Śr</th><th>Czw</th><th>Pt</th></tr></thead><tbody id="plan-body"></tbody></table>
                 </div>
             </div>
 
             <div id="tab-oceny" class="tab-pane" style="display:none;">
                 <div class="card teacher-only">
                     <h3>Wstaw ocenę</h3>
-                    <div style="display:flex; gap:10px">
-                        <select id="go-u" style="flex:2"></select>
-                        <input type="number" id="go-v" placeholder="Ocena" style="flex:1">
-                        <button class="btn btn-green" onclick="addGrade()">DODAJ</button>
-                    </div>
+                    <select id="g-student"></select><input type="number" id="g-val" placeholder="Ocena">
+                    <button class="btn btn-green" onclick="addGrade()">WSTAW</button>
                 </div>
-                <div class="card"><table><thead><tr><th>Uczeń</th><th>Oceny</th></tr></thead><tbody id="grades-list"></tbody></table></div>
+                <div class="card"><table><thead><tr><th>Uczeń</th><th>Oceny</th></tr></thead><tbody id="grades-body"></tbody></table></div>
             </div>
 
-            <div id="tab-terminarz" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Zapowiedz Kartkówkę/Sprawdzian</h3>
-                    <input type="text" id="ex-t" placeholder="Przedmiot">
-                    <input type="text" id="ex-d" placeholder="Opis">
-                    <button class="btn btn-blue" style="width:100%" onclick="addExam()">DODAJ</button>
-                </div>
-                <div id="exams-list"></div>
-            </div>
-
-            <div id="tab-uwagi" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Nowa Uwaga</h3>
-                    <select id="no-u"></select>
-                    <textarea id="no-t" placeholder="Treść uwagi..."></textarea>
-                    <button class="btn btn-red" style="width:100%" onclick="addNote()">DODAJ</button>
-                </div>
-                <div id="notes-list"></div>
-            </div>
-
-            <div id="tab-plan" class="tab-pane">
-                <div class="card"><h3>Plan Lekcji (Wspólny)</h3><p>Dane pobierane z chmury...</p></div>
-            </div>
+            <div id="tab-terminarz" class="tab-pane" style="display:none;"><div id="exams-container"></div></div>
+            <div id="tab-uwagi" class="tab-pane" style="display:none;"><div id="notes-container"></div></div>
         </div>
     </div>
 
     <script>
-        // PUBLICZNY KANAŁ DANYCH - Ty i kolega macie ten sam ID, więc dane się łączą
-        const CHANNEL_ID = "rybnik_sp1_shared_v11";
-        const API_URL = `https://api.keyvalue.xyz/${CHANNEL_ID}/data`;
+        const SYNC_ID = "rybnik_stable_91"; // Nowy kanał, żeby nie było śmieci
+        const API = `https://api.keyvalue.xyz/${SYNC_ID}/data`;
 
-        let db = { users: [], grades: [], exams: [], notes: [] };
+        let db = { users: [], grades: [], notes: [], exams: [], plan: Array(8).fill().map((_, i) => [`${8+i}:00`, "", "", "", "", ""]) };
         let currentUser = null;
 
-        // --- KOMUNIKACJA Z SERWEREM ---
-        async function loadFromCloud() {
+        async function syncLoad() {
             try {
-                const response = await fetch(API_URL);
-                if (response.ok) {
-                    const cloudData = await response.json();
-                    db = cloudData;
+                const r = await fetch(API);
+                if(r.ok) {
+                    const data = await r.json();
+                    if(data && data.users) db = data;
+                    document.getElementById('sync-info').innerText = "Zsynchronizowano. Możesz się zalogować.";
+                    document.getElementById('sync-info').style.color = "green";
                     renderAll();
-                    document.getElementById('conn-info').innerText = "Połączono! Możesz się zalogować.";
-                    document.getElementById('conn-info').style.color = "green";
                 }
-            } catch (e) { console.log("Pierwsze uruchomienie - brak danych w chmurze."); }
+            } catch(e) { console.log("Łączenie..."); }
         }
 
-        async function saveToCloud() {
-            document.getElementById('sync-indicator').innerText = "Synchronizacja: WYSYŁANIE...";
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(db)
-            });
-            document.getElementById('sync-indicator').innerText = "Synchronizacja: OK";
+        async function syncSave() {
+            document.getElementById('cloud-status').innerText = "Zapisywanie...";
+            await fetch(API, { method: 'POST', body: JSON.stringify(db) });
+            document.getElementById('cloud-status').innerText = "Chmura: Aktywna";
         }
 
-        // --- LOGIKA ---
-        function login() {
-            const u = document.getElementById('l-u').value;
-            const p = document.getElementById('l-p').value;
-            
+        function handleLogin() {
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+
+            // DYREKTOR ZAWSZE DZIAŁA
             if(u === 'KRZZUP25' && p === 'dyrektorsp1rybnik') {
-                currentUser = { name: "DYREKTOR", role: "dyrektor" };
+                currentUser = { name: "Dyrektor", role: "admin" };
             } else {
                 currentUser = db.users.find(x => x.l === u && x.p === p);
             }
 
             if(currentUser) {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('user-display').innerText = `Zalogowano: ${currentUser.name}`;
-                if(currentUser.role === 'dyrektor') document.getElementById('admin-menu').style.display = 'block';
-                if(currentUser.role === 'uczen') document.querySelectorAll('.teacher-only').forEach(e => e.style.display='none');
+                document.getElementById('header-info').innerText = "Witaj, " + currentUser.name;
+                if(currentUser.role === 'admin') document.getElementById('admin-menu').style.display = 'block';
+                if(currentUser.role === 'uczen') document.querySelectorAll('.teacher-only').forEach(x => x.style.display='none');
                 renderAll();
-            } else { alert("Błędne dane!"); }
+            } else {
+                alert("Nieprawidłowy login lub hasło (lub baza jeszcze się nie załadowała)!");
+            }
         }
 
         function addUser(role) {
-            const name = role === 'uczen' ? document.getElementById('au-n').value : document.getElementById('at-n').value;
-            const log = role === 'uczen' ? document.getElementById('au-l').value : document.getElementById('at-l').value;
-            const pas = role === 'uczen' ? document.getElementById('au-p').value : document.getElementById('at-p').value;
-            db.users.push({ id: Date.now(), name, l: log, p: pas, role: role });
-            saveToCloud();
+            const pre = role === 'uczen' ? 'u-' : 't-';
+            db.users.push({
+                id: Date.now(),
+                name: document.getElementById(pre+'nam').value,
+                l: document.getElementById(pre+'log').value,
+                p: document.getElementById(pre+'pas').value,
+                role: role
+            });
+            syncSave();
         }
 
         function addGrade() {
-            db.grades.push({ id: Date.now(), u: document.getElementById('go-u').value, v: document.getElementById('go-v').value });
-            saveToCloud();
-        }
-
-        function addExam() {
-            db.exams.push({ id: Date.now(), t: document.getElementById('ex-t').value, d: document.getElementById('ex-d').value });
-            saveToCloud();
-        }
-
-        function addNote() {
-            db.notes.push({ id: Date.now(), u: document.getElementById('no-u').value, t: document.getElementById('no-t').value });
-            saveToCloud();
-        }
-
-        function deleteItem(type, id) {
-            db[type] = db[type].filter(x => x.id !== id);
-            saveToCloud();
+            db.grades.push({id: Date.now(), s: document.getElementById('g-student').value, v: document.getElementById('g-val').value});
+            syncSave();
         }
 
         function renderAll() {
             const students = db.users.filter(x => x.role === 'uczen');
             
             // Oceny
-            document.getElementById('grades-list').innerHTML = students.map(s => `
-                <tr><td>${s.name}</td><td>
-                    ${db.grades.filter(g => g.u === s.name).map(g => `
-                        <span style="background:#eee; padding:3px; margin:2px; border:1px solid #ccc;">
-                            ${g.v} ${currentUser.role !== 'uczen' ? `<b style="color:red;cursor:pointer" onclick="deleteItem('grades', ${g.id})">×</b>` : ''}
-                        </span>
-                    `).join('')}
-                </td></tr>
+            document.getElementById('grades-body').innerHTML = students.map(s => `
+                <tr><td>${s.name}</td><td>${db.grades.filter(g => g.s === s.name).map(g => `
+                    <span style="background:#eee;border:1px solid #ccc;padding:2px;margin:2px">${g.v}</span>
+                `).join('')}</td></tr>
             `).join('');
 
-            // Sprawdziany
-            document.getElementById('exams-list').innerHTML = db.exams.map(e => `
-                <div class="item-row">
-                    <b>${e.t}</b> - ${e.d}
-                    ${currentUser.role !== 'uczen' ? `<button class="del-btn" onclick="deleteItem('exams', ${e.id})">USUŃ</button>` : ''}
-                </div>
+            // Plan
+            const isA = currentUser?.role === 'admin';
+            document.getElementById('plan-body').innerHTML = db.plan.map((row, r) => `
+                <tr><td>${row[0]}</td>
+                ${row.slice(1).map((c, i) => `<td contenteditable="${isA}" onblur="db.plan[${r}][${i+1}]=this.innerText;syncSave()">${c}</td>`).join('')}</tr>
             `).join('');
 
-            // Uwagi
-            document.getElementById('notes-list').innerHTML = db.notes.map(n => `
-                <div class="item-row" style="border-left-color:red">
-                    Dla: ${n.u} | Treść: ${n.t}
-                    ${currentUser.role !== 'uczen' ? `<button class="del-btn" onclick="deleteItem('notes', ${n.id})">USUŃ</button>` : ''}
-                </div>
-            `).join('');
-
-            // Listy wyboru
-            const selects = ['go-u', 'no-u'];
-            selects.forEach(sId => {
-                const el = document.getElementById(sId);
-                if(el) el.innerHTML = students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            });
+            // Selecty
+            document.getElementById('g-student').innerHTML = students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
         }
 
         function showTab(id) {
@@ -762,9 +190,8 @@
             document.getElementById('tab-'+id).style.display = 'block';
         }
 
-        // START I AUTO-ODŚWIEŻANIE
-        loadFromCloud();
-        setInterval(loadFromCloud, 4000); // Sprawdzaj zmiany u kolegi co 4 sekundy
+        syncLoad();
+        setInterval(syncLoad, 4000); // Odświeżanie u innych co 4 sekundy
     </script>
 </body>
 </html>
