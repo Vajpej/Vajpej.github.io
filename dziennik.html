@@ -2,6 +2,306 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
+    <title>1</title>
+    <style>
+        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-red: #e74c3c; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
+        body { margin: 0; background: var(--v-light); display: flex; height: 100vh; overflow: hidden; }
+
+        #login-screen { position: fixed; inset: 0; background: var(--v-dark); z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .login-box { background: white; padding: 25px; border-radius: 8px; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+
+        #sidebar { width: 230px; background: #1a252f; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .nav-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #2c3e50; display: flex; align-items: center; gap: 10px; }
+        .nav-item:hover, .active { background: var(--v-green); }
+        
+        #main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        header { background: white; padding: 10px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .container { padding: 20px; }
+        .card { background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 15px; }
+
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-green { background: var(--v-green); }
+        .btn-blue { background: var(--v-blue); }
+        .btn-red { background: var(--v-red); }
+        
+        input, select, textarea { padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin: 2px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #dee2e6; padding: 6px; text-align: center; }
+        
+        .item-row { border-left: 5px solid #ccc; padding: 10px; margin: 5px 0; background: #fff; position: relative; border: 1px solid #ddd; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: var(--v-red); color: white; border: none; cursor: pointer; font-size: 9px; padding: 2px 5px; border-radius: 3px; }
+        .grade-tag { display: inline-block; background: #eee; border: 1px solid #ccc; padding: 2px 6px; margin: 2px; border-radius: 3px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="color:var(--v-green)">VULCAN SP1 RYBNIK</h2>
+            <input type="text" id="login-user" placeholder="Login">
+            <input type="password" id="login-pass" placeholder="Hasło">
+            <button class="btn btn-green" style="width:100%; margin-top:10px;" id="login-btn">ZALOGUJ</button>
+            <p style="font-size:10px; color:#666; margin-top:15px;">System Titan v10 Cloud</p>
+        </div>
+    </div>
+
+    <div id="sidebar" style="display:none;">
+        <div style="padding:15px; background:#000; font-weight:bold; color:var(--v-green)">TITAN v10.0 FB</div>
+        <div class="nav-item active" onclick="showTab('plan')">📅 Plan Lekcji</div>
+        <div class="nav-item teacher-only" onclick="showTab('oceny')">📑 Oceny</div>
+        <div class="nav-item" onclick="showTab('terminarz')">📝 Sprawdziany</div>
+        <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
+        <div id="admin-menu" style="display:none;"><div class="nav-item" onclick="showTab('admin')" style="color:#ffbd2e">⚙️ Zarządzanie</div></div>
+        <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:var(--v-red)">🔒 Wyloguj</div>
+    </div>
+
+    <div id="main" style="display:none;">
+        <header>
+            <div id="header-info">Ładowanie danych...</div>
+            <div id="cloud-status" style="color:var(--v-green)">● Połączono z Firebase</div>
+        </header>
+
+        <div class="container">
+            <!-- TAB: ADMIN -->
+            <div id="tab-admin" class="tab-pane" style="display:none;">
+                <div class="card">
+                    <h3>Dodaj Użytkownika</h3>
+                    <input id="u-nam" placeholder="Imię i Nazwisko">
+                    <input id="u-log" placeholder="Login">
+                    <input id="u-pas" placeholder="Hasło">
+                    <select id="u-rol">
+                        <option value="uczen">Uczeń</option>
+                        <option value="nauczyciel">Nauczyciel</option>
+                    </select>
+                    <button class="btn btn-green" id="btn-add-user" style="width:100%">DODAJ KONTO</button>
+                </div>
+            </div>
+
+            <!-- TAB: PLAN -->
+            <div id="tab-plan" class="tab-pane">
+                <div class="card">
+                    <h3>Plan Lekcji (Synchronizacja Live)</h3>
+                    <table>
+                        <thead><tr><th>Godz</th><th>Pon</th><th>Wt</th><th>Śr</th><th>Czw</th><th>Pt</th></tr></thead>
+                        <tbody id="plan-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: OCENY -->
+            <div id="tab-oceny" class="tab-pane" style="display:none;">
+                <div class="card teacher-only">
+                    <h3>Wstaw ocenę</h3>
+                    <select id="g-student"></select>
+                    <input type="number" id="g-val" placeholder="Ocena" min="1" max="6">
+                    <button class="btn btn-green" id="btn-add-grade">WSTAW</button>
+                </div>
+                <div class="card">
+                    <table><thead><tr><th>Uczeń</th><th>Oceny</th></tr></thead><tbody id="grades-body"></tbody></table>
+                </div>
+            </div>
+
+            <!-- TAB: TERMINARZ -->
+            <div id="tab-terminarz" class="tab-pane" style="display:none;">
+                <div class="card teacher-only">
+                    <h3>Dodaj sprawdzian</h3>
+                    <input type="text" id="ex-desc" placeholder="Np. Matematyka - Geometria">
+                    <button class="btn btn-blue" id="btn-add-exam">DODAJ</button>
+                </div>
+                <div id="exams-container"></div>
+            </div>
+
+            <!-- TAB: UWAGI -->
+            <div id="tab-uwagi" class="tab-pane" style="display:none;">
+                <div class="card teacher-only">
+                    <h3>Wpisz uwagę</h3>
+                    <select id="n-student"></select>
+                    <textarea id="n-text" placeholder="Treść uwagi..."></textarea>
+                    <button class="btn btn-red" id="btn-add-note">WYŚLIJ</button>
+                </div>
+                <div id="notes-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        // TWOJA KONFIGURACJA FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyCR2Fej_Vjsa8ZlN-4jBSj4jtdie7_nMpo",
+            authDomain: "realtime-database-fc6da.firebaseapp.com",
+            databaseURL: "https://realtime-database-fc6da-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "realtime-database-fc6da",
+            storageBucket: "realtime-database-fc6da.firebasestorage.app",
+            appId: "1:682575613834:web:1f1b382325d626f7e5c273"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let localUsers = {};
+
+        // LOGIN SYSTEM
+        document.getElementById('login-btn').onclick = () => {
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+
+            // HARD-CODED DYREKTOR
+            if(u === 'KRZZUP25' && p === 'dyrektorsp1rybnik') {
+                loginAs({ name: "Dyrektor", role: "admin" });
+                return;
+            }
+
+            // SZUKANIE W FIREBASE
+            onValue(ref(db, 'users'), (snapshot) => {
+                const users = snapshot.val();
+                let found = false;
+                for(let id in users) {
+                    if(users[id].l === u && users[id].p === p) {
+                        loginAs(users[id]);
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) alert("Błędne dane logowania!");
+            }, { onlyOnce: true });
+        };
+
+        function loginAs(user) {
+            currentUser = user;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('sidebar').style.display = 'flex';
+            document.getElementById('main').style.display = 'flex';
+            document.getElementById('header-info').innerText = "Zalogowany: " + user.name;
+            
+            if(user.role === 'admin') document.getElementById('admin-menu').style.display = 'block';
+            if(user.role === 'uczen') document.querySelectorAll('.teacher-only').forEach(x => x.style.display='none');
+            
+            startRealtimeSync();
+        }
+
+        // SYNCHRONIZACJA LIVE
+        function startRealtimeSync() {
+            // Plan Lekcji
+            onValue(ref(db, 'plan'), (snap) => {
+                const planData = snap.val() || Array(8).fill().map((_, i) => [`${8+i}:00`, "", "", "", "", ""]);
+                const isA = currentUser.role === 'admin';
+                document.getElementById('plan-body').innerHTML = planData.map((row, r) => `
+                    <tr><td>${row[0]}</td>
+                    ${row.slice(1).map((c, i) => `<td contenteditable="${isA}" onblur="window.updatePlan(${r}, ${i+1}, this.innerText)">${c}</td>`).join('')}</tr>
+                `).join('');
+                window.currentPlan = planData;
+            });
+
+            // Użytkownicy i Oceny (razem dla widoku ocen)
+            onValue(ref(db, 'users'), (uSnap) => {
+                localUsers = uSnap.val() || {};
+                const students = Object.values(localUsers).filter(u => u.role === 'uczen');
+                
+                // Aktualizuj dropdowny
+                const selects = ['g-student', 'n-student'];
+                selects.forEach(sid => {
+                    const el = document.getElementById(sid);
+                    if(el) el.innerHTML = students.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+                });
+
+                // Renderuj tabelę ocen
+                onValue(ref(db, 'grades'), (gSnap) => {
+                    const grades = gSnap.val() || {};
+                    document.getElementById('grades-body').innerHTML = students.map(s => `
+                        <tr><td>${s.name}</td><td>
+                            ${Object.keys(grades).filter(id => grades[id].s === s.name).map(id => `
+                                <span class="grade-tag">${grades[id].v} 
+                                    ${currentUser.role !== 'uczen' ? `<small style="color:red;cursor:pointer" onclick="window.removeItem('grades/${id}')">×</small>` : ''}
+                                </span>
+                            `).join('')}
+                        </td></tr>
+                    `).join('');
+                });
+            });
+
+            // Sprawdziany
+            onValue(ref(db, 'exams'), (snap) => {
+                const exams = snap.val() || {};
+                const cont = document.getElementById('exams-container');
+                cont.innerHTML = "<h3>Nadchodzące sprawdziany</h3>";
+                for(let id in exams) {
+                    cont.innerHTML += `<div class="item-row">${exams[id].txt} ${currentUser.role !== 'uczen' ? `<button class="del-btn" onclick="window.removeItem('exams/${id}')">USUŃ</button>` : ''}</div>`;
+                }
+            });
+
+            // Uwagi
+            onValue(ref(db, 'notes'), (snap) => {
+                const notes = snap.val() || {};
+                const cont = document.getElementById('notes-container');
+                cont.innerHTML = "<h3>Uwagi i powiadomienia</h3>";
+                for(let id in notes) {
+                    // Uczeń widzi tylko swoje uwagi, nauczyciel/admin widzi wszystkie
+                    if(currentUser.role === 'uczen' && notes[id].s !== currentUser.name) continue;
+                    cont.innerHTML += `<div class="item-row"><b>Dla: ${notes[id].s}</b><br>${notes[id].txt} ${currentUser.role !== 'uczen' ? `<button class="del-btn" onclick="window.removeItem('notes/${id}')">USUŃ</button>` : ''}</div>`;
+                }
+            });
+        }
+
+        // FUNKCJE GLOBALNE (DOSTĘPNE Z HTML)
+        window.updatePlan = (r, c, val) => {
+            window.currentPlan[r][c] = val;
+            set(ref(db, 'plan'), window.currentPlan);
+        };
+
+        window.removeItem = (path) => {
+            if(confirm("Na pewno usunąć?")) remove(ref(db, path));
+        };
+
+        // EVENTY PRZYCISKÓW
+        document.getElementById('btn-add-user').onclick = () => {
+            const newUser = {
+                name: document.getElementById('u-nam').value,
+                l: document.getElementById('u-log').value,
+                p: document.getElementById('u-pas').value,
+                role: document.getElementById('u-rol').value
+            };
+            push(ref(db, 'users'), newUser);
+            alert("Dodano!");
+        };
+
+        document.getElementById('btn-add-grade').onclick = () => {
+            push(ref(db, 'grades'), {
+                s: document.getElementById('g-student').value,
+                v: document.getElementById('g-val').value
+            });
+        };
+
+        document.getElementById('btn-add-exam').onclick = () => {
+            push(ref(db, 'exams'), { txt: document.getElementById('ex-desc').value });
+        };
+
+        document.getElementById('btn-add-note').onclick = () => {
+            push(ref(db, 'notes'), {
+                s: document.getElementById('n-student').value,
+                txt: document.getElementById('n-text').value
+            });
+        };
+
+        // Zmiana kart
+        window.showTab = (id) => {
+            document.querySelectorAll('.tab-pane').forEach(x => x.style.display = 'none');
+            document.getElementById('tab-'+id).style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        };
+
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
     <title>VULCAN RYBNIK TITAN v10.0 (FULL FIREBASeeeeeE)</title>
     <style>
         :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-red: #e74c3c; }
