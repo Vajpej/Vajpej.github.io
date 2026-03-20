@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>VULCAN RYBNIK TITAN v10.0 (FULL FIREBASE)</title>
+    <title>VULCAN RYBNIK TITAN v10.0 (FULL FIREBASeeeeeE)</title>
     <style>
         :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-red: #e74c3c; }
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
@@ -16,7 +16,7 @@
         .nav-item:hover, .active { background: var(--v-green); }
         
         #main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        header { background: white; padding: 10px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        header { background: white; padding: 10px 25px; border-bottom: 1px solid #ddd; display: justify-content: space-between; align-items: center; display: flex; }
         .container { padding: 20px; }
         .card { background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 15px; }
 
@@ -33,6 +33,7 @@
         .item-row { border-left: 5px solid #ccc; padding: 12px; margin: 8px 0; background: #fff; position: relative; border: 1px solid #ddd; }
         .del-btn { position: absolute; top: 5px; right: 5px; background: var(--v-red); color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 9px; padding: 2px 5px; }
         .grade-tag { display: inline-block; padding: 3px 7px; background: #f1f1f1; border-radius: 3px; margin: 2px; border: 1px solid #ccc; position: relative; }
+        .presence-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -62,19 +63,27 @@
 
     <div id="main" style="display:none;">
         <header>
-            <div id="header-info">Ładowanie profilu...</div>
+            <div id="header-info">Ładowanie...</div>
             <div id="header-date"></div>
         </header>
 
         <div class="container">
-            <!-- PLAN LEKCJI -->
+            <!-- PLAN -->
             <div id="tab-plan" class="tab-pane">
                 <div class="card">
-                    <h3>Plan Zajęć (Synchronizacja Live)</h3>
+                    <h3>Plan Zajęć (Firebase Realtime)</h3>
                     <table>
                         <thead><tr><th>Nr</th><th>Godz</th><th>Pon</th><th>Wt</th><th>Śr</th><th>Czw</th><th>Pt</th></tr></thead>
                         <tbody id="plan-body"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- FREKWENCJA -->
+            <div id="tab-frekwencja" class="tab-pane" style="display:none;">
+                <div class="card">
+                    <h3>Lista obecności</h3>
+                    <table><thead><tr><th>Uczeń</th><th>Status</th></tr></thead><tbody id="freq-body"></tbody></table>
                 </div>
             </div>
 
@@ -85,25 +94,21 @@
                     <div style="display:flex; gap:10px;">
                         <select id="g-student"></select>
                         <input type="number" id="g-val" placeholder="Ocena">
-                        <input type="number" id="g-weight" value="1">
                         <input type="text" id="g-cat" placeholder="Kategoria">
                         <button class="btn btn-green" id="btn-add-grade">DODAJ</button>
                     </div>
                 </div>
-                <div class="card"><table><thead><tr><th>Uczeń</th><th>Oceny</th><th>Średnia</th></tr></thead><tbody id="grades-body"></tbody></table></div>
+                <div class="card"><table><thead><tr><th>Uczeń</th><th>Oceny</th></tr></thead><tbody id="grades-body"></tbody></table></div>
             </div>
 
-            <!-- TERMINARZ -->
+            <!-- SPRAWDZIANY -->
             <div id="tab-terminarz" class="tab-pane" style="display:none;">
                 <div class="card teacher-only">
-                    <h3>Nowa Zapowiedź</h3>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:10px;">
-                        <input type="date" id="ex-date">
-                        <select id="ex-type"><option>Sprawdzian</option><option>Kartkówka</option></select>
-                        <input type="text" id="ex-sub" placeholder="Przedmiot">
-                        <button class="btn btn-blue" id="btn-add-exam">ZAPISZ</button>
-                    </div>
-                    <input type="text" id="ex-desc" placeholder="Opis" style="margin-top:10px;">
+                    <h3>Dodaj Sprawdzian</h3>
+                    <input type="date" id="ex-date">
+                    <input type="text" id="ex-sub" placeholder="Przedmiot">
+                    <input type="text" id="ex-desc" placeholder="Temat">
+                    <button class="btn btn-blue" id="btn-add-exam" style="width:100%; margin-top:5px;">ZAPISZ</button>
                 </div>
                 <div id="exams-container"></div>
             </div>
@@ -111,31 +116,28 @@
             <!-- UWAGI -->
             <div id="tab-uwagi" class="tab-pane" style="display:none;">
                 <div class="card teacher-only">
-                    <h3>Wpis Wychowawczy</h3>
+                    <h3>Wpisz uwagę</h3>
                     <select id="n-student"></select>
-                    <textarea id="n-text" placeholder="Opis..."></textarea>
-                    <button class="btn btn-red" id="btn-add-note">DODAJ WPIS</button>
+                    <textarea id="n-text" placeholder="Treść uwagi..."></textarea>
+                    <button class="btn btn-red" id="btn-add-note" style="width:100%">DODAJ</button>
                 </div>
                 <div id="notes-container"></div>
             </div>
 
             <!-- KADRA -->
             <div id="tab-kadra" class="tab-pane" style="display:none;">
-                <div class="card">
-                    <h3>Nauczyciele</h3>
-                    <table><thead><tr><th>Imię i Nazwisko</th><th>Przedmiot</th><th>Rola</th></tr></thead><tbody id="kadra-body"></tbody></table>
-                </div>
+                <div class="card"><h3>Grono Pedagogiczne</h3><div id="kadra-list"></div></div>
             </div>
 
             <!-- ADMIN -->
             <div id="tab-admin" class="tab-pane" style="display:none;">
                 <div class="card">
-                    <h3>Dodaj Użytkownika</h3>
+                    <h3>Nowe konto</h3>
                     <input type="text" id="u-log" placeholder="Login">
                     <input type="password" id="u-pas" placeholder="Hasło">
                     <input type="text" id="u-nam" placeholder="Imię i Nazwisko">
                     <select id="u-rol"><option value="uczen">Uczeń</option><option value="nauczyciel">Nauczyciel</option></select>
-                    <button class="btn btn-blue" id="btn-add-user" style="width:100%">DODAJ DO FIREBASE</button>
+                    <button class="btn btn-blue" id="btn-add-user" style="width:100%">STWÓRZ</button>
                 </div>
                 <div class="card" id="user-list-all"></div>
             </div>
@@ -160,24 +162,27 @@
         let currentUser = null;
         let allUsers = {};
 
-        // LOGOWANIE
+        // LOGIN SYSTEM
         document.getElementById('login-btn').onclick = () => {
             const u = document.getElementById('login-user').value;
             const p = document.getElementById('login-pass').value;
 
+            // DYREKTOR NA SZTYWNO
             if(u === 'KRZZUP25' && p === 'dyrektorsp1rybnik') {
-                loginSuccess({ name: "mgr Krzysztof Zupkowski", role: "dyrektor" });
+                loginSuccess({ name: "mgr Krzysztof Zupkowski", role: "dyrektor", login: u });
                 return;
             }
 
             onValue(ref(db, 'users'), (snap) => {
                 const users = snap.val();
+                let found = false;
                 for(let id in users) {
                     if(users[id].login === u && users[id].pass === p) {
-                        loginSuccess(users[id]); return;
+                        loginSuccess(users[id]);
+                        found = true; break;
                     }
                 }
-                alert("Błąd!");
+                if(!found) alert("Błędne dane!");
             }, { onlyOnce: true });
         };
 
@@ -186,118 +191,109 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('sidebar').style.display = 'flex';
             document.getElementById('main').style.display = 'flex';
-            document.getElementById('header-info').innerHTML = `Zalogowano: <b>${user.name}</b>`;
+            document.getElementById('header-info').innerHTML = `<b>${user.name}</b> (${user.role})`;
+            if(user.role === 'dyrektor' || user.role === 'nauczyciel') {
+                document.querySelectorAll('.teacher-only').forEach(el => el.style.display = 'block');
+            } else {
+                document.querySelectorAll('.teacher-only').forEach(el => el.style.display = 'none');
+            }
             if(user.role === 'dyrektor') document.getElementById('admin-menu').style.display = 'block';
             startSync();
         }
 
         function startSync() {
-            // PLAN
+            // SYNC PLAN
             onValue(ref(db, 'plan'), (snap) => {
                 const plan = snap.val() || Array(8).fill().map((_, i) => [i+1, `${8+i}:00`, "---", "---", "---", "---", "---"]);
-                const body = document.getElementById('plan-body');
-                body.innerHTML = plan.map((row, rIdx) => `
-                    <tr>
-                        <td>${row[0]}</td><td>${row[1]}</td>
-                        ${row.slice(2).map((cell, cIdx) => `<td contenteditable="${currentUser.role==='dyrektor'}" onblur="window.updatePlan(${rIdx}, ${cIdx+2}, this.innerText)">${cell}</td>`).join('')}
-                    </tr>
+                document.getElementById('plan-body').innerHTML = plan.map((row, rIdx) => `
+                    <tr><td>${row[0]}</td><td>${row[1]}</td>${row.slice(2).map((cell, cIdx) => `
+                        <td contenteditable="${currentUser.role==='dyrektor'}" onblur="window.updatePlan(${rIdx}, ${cIdx+2}, this.innerText)">${cell}</td>`).join('')}</tr>
                 `).join('');
                 window.localPlan = plan;
             });
 
-            // UŻYTKOWNICY & KADRA
+            // SYNC USERS
             onValue(ref(db, 'users'), (snap) => {
                 allUsers = snap.val() || {};
-                const kBody = document.getElementById('kadra-body');
-                kBody.innerHTML = "";
                 const selG = document.getElementById('g-student');
                 const selN = document.getElementById('n-student');
-                selG.innerHTML = ""; selN.innerHTML = "";
+                const kList = document.getElementById('kadra-list');
+                const fBody = document.getElementById('freq-body');
+                
+                selG.innerHTML = ""; selN.innerHTML = ""; kList.innerHTML = ""; fBody.innerHTML = "";
 
                 for(let id in allUsers) {
                     const u = allUsers[id];
-                    if(u.role === 'nauczyciel' || u.role === 'dyrektor') {
-                        kBody.innerHTML += `<tr><td>${u.name}</td><td>Przedmiot</td><td>${u.role}</td></tr>`;
-                    } else {
+                    if(u.role === 'uczen') {
                         selG.innerHTML += `<option value="${u.name}">${u.name}</option>`;
                         selN.innerHTML += `<option value="${u.name}">${u.name}</option>`;
+                        fBody.innerHTML += `<tr><td>${u.name}</td><td><button class="presence-btn" onclick="alert('Oznaczono')">✔️</button></td></tr>`;
+                    } else {
+                        kList.innerHTML += `<div class="item-row"><b>${u.name}</b> - ${u.role}</div>`;
                     }
                 }
                 renderAdminList();
             });
 
-            // OCENY
+            // SYNC OCENY
             onValue(ref(db, 'grades'), (snap) => {
                 const grades = snap.val() || {};
                 const body = document.getElementById('grades-body');
                 body.innerHTML = "";
                 for(let uid in allUsers) {
-                    const u = allUsers[uid];
-                    if(u.role !== 'uczen') continue;
-                    if(currentUser.role === 'uczen' && currentUser.name !== u.name) continue;
-                    
-                    let tags = "", sum=0, count=0;
+                    if(allUsers[uid].role !== 'uczen') continue;
+                    let tags = "";
                     for(let gid in grades) {
-                        if(grades[gid].s === u.name) {
-                            tags += `<span class="grade-tag">${grades[gid].v} <small onclick="window.delItem('grades/${gid}')">×</small></span>`;
-                            sum += parseFloat(grades[gid].v); count++;
+                        if(grades[gid].s === allUsers[uid].name) {
+                            tags += `<span class="grade-tag">${grades[gid].v} <small onclick="window.delItem('grades/${gid}')" style="color:red;cursor:pointer">x</small></span>`;
                         }
                     }
-                    body.innerHTML += `<tr><td>${u.name}</td><td>${tags}</td><td>${count?(sum/count).toFixed(2):'-'}</td></tr>`;
+                    body.innerHTML += `<tr><td>${allUsers[uid].name}</td><td>${tags}</td></tr>`;
                 }
             });
 
-            // TERMINARZ
+            // SYNC SPRAWDZIANY
             onValue(ref(db, 'exams'), (snap) => {
                 const exams = snap.val() || {};
                 const cont = document.getElementById('exams-container');
                 cont.innerHTML = "";
                 for(let id in exams) {
-                    const e = exams[id];
-                    cont.innerHTML += `<div class="item-row"><b>${e.d}</b> | ${e.t}: ${e.s} - ${e.desc} <button class="del-btn" onclick="window.delItem('exams/${id}')">USUŃ</button></div>`;
+                    cont.innerHTML += `<div class="item-row"><b>${exams[id].d}</b> | ${exams[id].s}: ${exams[id].desc} <button class="del-btn" onclick="window.delItem('exams/${id}')">USUŃ</button></div>`;
                 }
             });
 
-            // UWAGI
+            // SYNC UWAGI
             onValue(ref(db, 'notes'), (snap) => {
                 const notes = snap.val() || {};
                 const cont = document.getElementById('notes-container');
                 cont.innerHTML = "";
                 for(let id in notes) {
-                    const n = notes[id];
-                    if(currentUser.role === 'uczen' && n.s !== currentUser.name) continue;
-                    cont.innerHTML += `<div class="item-row"><b>Dla: ${n.s}</b><br>${n.txt} <button class="del-btn" onclick="window.delItem('notes/${id}')">USUŃ</button></div>`;
+                    if(currentUser.role === 'uczen' && notes[id].s !== currentUser.name) continue;
+                    cont.innerHTML += `<div class="item-row"><b>${notes[id].s}</b>: ${notes[id].txt} <button class="del-btn" onclick="window.delItem('notes/${id}')">USUŃ</button></div>`;
                 }
             });
         }
 
         // AKCJE
-        window.updatePlan = (r, c, val) => {
-            window.localPlan[r][c] = val;
-            set(ref(db, 'plan'), window.localPlan);
+        window.updatePlan = (r, c, val) => { window.localPlan[r][c] = val; set(ref(db, 'plan'), window.localPlan); };
+        window.delItem = (path) => { if(currentUser.role !== 'uczen') remove(ref(db, path)); };
+        
+        document.getElementById('btn-add-user').onclick = () => {
+            push(ref(db, 'users'), { login: document.getElementById('u-log').value, pass: document.getElementById('u-pas').value, name: document.getElementById('u-nam').value, role: document.getElementById('u-rol').value });
         };
-
         document.getElementById('btn-add-grade').onclick = () => {
-            push(ref(db, 'grades'), { s: document.getElementById('g-student').value, v: document.getElementById('g-val').value, w: document.getElementById('g-weight').value, c: document.getElementById('g-cat').value });
+            push(ref(db, 'grades'), { s: document.getElementById('g-student').value, v: document.getElementById('g-val').value, c: document.getElementById('g-cat').value });
         };
-
         document.getElementById('btn-add-exam').onclick = () => {
-            push(ref(db, 'exams'), { d: document.getElementById('ex-date').value, t: document.getElementById('ex-type').value, s: document.getElementById('ex-sub').value, desc: document.getElementById('ex-desc').value });
+            push(ref(db, 'exams'), { d: document.getElementById('ex-date').value, s: document.getElementById('ex-sub').value, desc: document.getElementById('ex-desc').value });
         };
-
         document.getElementById('btn-add-note').onclick = () => {
             push(ref(db, 'notes'), { s: document.getElementById('n-student').value, txt: document.getElementById('n-text').value });
         };
 
-        document.getElementById('btn-add-user').onclick = () => {
-            push(ref(db, 'users'), { login: document.getElementById('u-log').value, pass: document.getElementById('u-pas').value, name: document.getElementById('u-nam').value, role: document.getElementById('u-rol').value });
-        };
-
-        window.delItem = (path) => { if(currentUser.role !== 'uczen') remove(ref(db, path)); };
-
         function renderAdminList() {
             const cont = document.getElementById('user-list-all');
-            cont.innerHTML = "<h3>Lista kont</h3>";
+            cont.innerHTML = "<h3>Konta w systemie</h3>";
             for(let id in allUsers) {
                 cont.innerHTML += `<div style="padding:5px; border-bottom:1px solid #eee">${allUsers[id].name} (${allUsers[id].role}) <button onclick="window.delItem('users/${id}')">USUŃ</button></div>`;
             }
@@ -306,289 +302,10 @@
         window.showTab = (id) => {
             document.querySelectorAll('.tab-pane').forEach(x => x.style.display = 'none');
             document.getElementById('tab-'+id).style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
         };
 
         document.getElementById('header-date').innerText = new Date().toLocaleDateString('pl-PL', {weekday:'long', day:'numeric', month:'long'});
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>VULCAN RYBNIK TITAN v9.0 (FIREBASE)</title>
-    <style>
-        :root { --v-green: #00875a; --v-blue: #0052cc; --v-dark: #2c3e50; --v-light: #f4f5f7; --v-red: #e74c3c; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
-        body { margin: 0; background: var(--v-light); display: flex; height: 100vh; overflow: hidden; }
-
-        /* LOGOWANIE */
-        #login-screen { position: fixed; inset: 0; background: var(--v-dark); z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 30px; border-radius: 8px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-
-        /* SIDEBAR */
-        #sidebar { width: 230px; background: #1a252f; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-        .nav-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #2c3e50; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover, .active { background: var(--v-green); }
-        
-        #main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        header { background: white; padding: 10px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 20px; }
-        .card { background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 15px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #dee2e6; padding: 6px; text-align: center; }
-        th { background: #f8f9fa; }
-        
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-green { background: var(--v-green); color: white; }
-        .btn-red { background: var(--v-red); color: white; }
-        .btn-blue { background: var(--v-blue); color: white; }
-        input, select, textarea { padding: 6px; border: 1px solid #ccc; border-radius: 4px; margin: 2px; width: 100%; }
-        
-        .item-row { border-left: 5px solid #ccc; padding: 12px; margin: 8px 0; background: #fff; position: relative; border: 1px solid #ddd; }
-        .del-btn { position: absolute; top: 5px; right: 5px; background: var(--v-red); color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 9px; padding: 2px 5px; }
-        .grade-tag { display: inline-block; padding: 3px 7px; background: #f1f1f1; border-radius: 3px; margin: 2px; border: 1px solid #ccc; position: relative; }
-        .grade-del { color: red; cursor: pointer; margin-left: 4px; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="text-align:center; color:var(--v-green)">VULCAN SP1 RYBNIK</h2>
-            <input type="text" id="login-user" placeholder="Login">
-            <input type="password" id="login-pass" placeholder="Hasło">
-            <button class="btn btn-green" style="width:100%; margin-top:15px;" id="login-btn">ZALOGUJ</button>
-            <p style="font-size: 10px; color: #666; text-align: center; margin-top: 10px;">Dyrektor: KRZZUP25 / dyrektorsp1rybnik</p>
-        </div>
-    </div>
-
-    <div id="sidebar" style="display:none;">
-        <div style="padding:20px; background:#000; font-weight:bold; color:var(--v-green)">TITAN OMNI v9.0</div>
-        <div class="nav-item active" onclick="showTab('plan')">📅 Plan Lekcji</div>
-        <div class="nav-item teacher-only" onclick="showTab('frekwencja')">✔️ Frekwencja</div>
-        <div class="nav-item" onclick="showTab('oceny')">📑 Oceny</div>
-        <div class="nav-item" onclick="showTab('terminarz')">📝 Sprawdziany</div>
-        <div class="nav-item" onclick="showTab('uwagi')">⚠️ Uwagi</div>
-        <div class="nav-item" onclick="showTab('kadra')">👨‍🏫 Nauczyciele</div>
-        <div id="admin-menu" style="display:none;">
-            <div class="nav-item" onclick="showTab('admin')" style="color:#ffbd2e">⚙️ Zarządzanie Bazą</div>
-        </div>
-        <div class="nav-item" onclick="location.reload()" style="margin-top:auto; color:var(--v-red)">🔒 Wyloguj</div>
-    </div>
-
-    <div id="main" style="display:none;">
-        <header>
-            <div id="header-info">Zalogowano: ---</div>
-            <div id="header-date">Ładowanie daty...</div>
-        </header>
-
-        <div class="container">
-            <!-- TAB: OCENY -->
-            <div id="tab-oceny" class="tab-pane" style="display:none;">
-                <div class="card teacher-only">
-                    <h3>Wstaw Ocenę</h3>
-                    <div style="display:flex; gap:10px;">
-                        <select id="g-student" style="flex:2"></select>
-                        <input type="number" id="g-val" placeholder="Ocena" style="flex:0.5">
-                        <input type="number" id="g-weight" placeholder="Waga" value="1" style="flex:0.5">
-                        <input type="text" id="g-cat" placeholder="Kategoria" style="flex:1">
-                        <button class="btn btn-green" id="btn-add-grade">DODAJ</button>
-                    </div>
-                </div>
-                <div class="card"><table><thead><tr><th>Uczeń</th><th>Oceny Ważone</th><th>Średnia</th></tr></thead><tbody id="grades-body"></tbody></table></div>
-            </div>
-
-            <!-- TAB: ADMIN -->
-            <div id="tab-admin" class="tab-pane" style="display:none;">
-                <div class="card">
-                    <h3>Szybkie Dodawanie Kont</h3>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:5px;">
-                        <input type="text" id="u-log" placeholder="Login">
-                        <input type="text" id="u-pas" placeholder="Hasło">
-                        <input type="text" id="u-nam" placeholder="Imię i Nazwisko">
-                        <select id="u-rol"><option value="uczen">Uczeń</option><option value="nauczyciel">Nauczyciel</option></select>
-                    </div>
-                    <button class="btn btn-blue" id="btn-add-user" style="margin-top:10px; width:100%">DODAJ KONTO DO FIREBASE</button>
-                </div>
-                <div class="card">
-                    <h3>Wszystkie Konta</h3>
-                    <div id="user-list-all"></div>
-                </div>
-            </div>
-
-            <!-- Pozostałe taby zostają puste lub do uzupełnienia -->
-            <div id="tab-plan" class="tab-pane">
-                <div class="card"><h3>Plan Zajęć (Firebase Realtime)</h3><p>Funkcja w trakcie synchronizacji...</p></div>
-            </div>
-            
-            <div id="tab-kadra" class="tab-pane" style="display:none;"><div class="card"><h3>Kadra</h3><div id="kadra-list"></div></div></div>
-            <div id="tab-uwagi" class="tab-pane" style="display:none;"><div class="card"><h3>Uwagi</h3><div id="notes-list"></div></div></div>
-            <div id="tab-terminarz" class="tab-pane" style="display:none;"><div class="card"><h3>Sprawdziany</h3><div id="exams-list"></div></div></div>
-
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-        // TWOJA KONFIGURACJA FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyCR2Fej_Vjsa8ZlN-4jBSj4jtdie7_nMpo",
-            authDomain: "realtime-database-fc6da.firebaseapp.com",
-            databaseURL: "https://realtime-database-fc6da-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "realtime-database-fc6da",
-            storageBucket: "realtime-database-fc6da.firebasestorage.app",
-            messagingSenderId: "682575613834",
-            appId: "1:682575613834:web:1f1b382325d626f7e5c273",
-            measurementId: "G-2BLHD06P9C"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        let currentUser = null;
-        let allData = { users: {}, grades: {} };
-
-        // --- OBSŁUGA LOGOWANIA ---
-        document.getElementById('login-btn').onclick = () => {
-            const u = document.getElementById('login-user').value;
-            const p = document.getElementById('login-pass').value;
-
-            // Specjalne logowanie dla Dyrektora (na start)
-            if(u === 'KRZZUP25' && p === 'dyrektorsp1rybnik') {
-                loginSuccess({ name: "mgr Krzysztof Zupkowski", role: "dyrektor" });
-                return;
-            }
-
-            // Szukanie w Firebase
-            const usersRef = ref(db, 'users');
-            onValue(usersRef, (snapshot) => {
-                const users = snapshot.val();
-                let found = false;
-                for(let id in users) {
-                    if(users[id].login === u && users[id].pass === p) {
-                        loginSuccess(users[id]);
-                        found = true; break;
-                    }
-                }
-                if(!found) alert("Błąd logowania!");
-            }, { onlyOnce: true });
-        };
-
-        function loginSuccess(user) {
-            currentUser = user;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('sidebar').style.display = 'flex';
-            document.getElementById('main').style.display = 'flex';
-            document.getElementById('header-info').innerHTML = `Zalogowano: <b>${user.name}</b> (${user.role})`;
-            
-            if(user.role === 'dyrektor') document.getElementById('admin-menu').style.display = 'block';
-            if(user.role === 'uczen') document.querySelectorAll('.teacher-only').forEach(x => x.style.display='none');
-            
-            startSync();
-        }
-
-        // --- SYNCHRONIZACJA NA ŻYWO ---
-        function startSync() {
-            // Synchronizacja Użytkowników
-            onValue(ref(db, 'users'), (snapshot) => {
-                allData.users = snapshot.val() || {};
-                renderUserList();
-                updateSelectors();
-            });
-
-            // Synchronizacja Ocen
-            onValue(ref(db, 'grades'), (snapshot) => {
-                allData.grades = snapshot.val() || {};
-                renderGrades();
-            });
-        }
-
-        // --- FUNKCJE ADMINA ---
-        document.getElementById('btn-add-user').onclick = () => {
-            const newUser = {
-                login: document.getElementById('u-log').value,
-                pass: document.getElementById('u-pas').value,
-                name: document.getElementById('u-nam').value,
-                role: document.getElementById('u-rol').value
-            };
-            push(ref(db, 'users'), newUser);
-            alert("Dodano użytkownika!");
-        };
-
-        function renderUserList() {
-            const container = document.getElementById('user-list-all');
-            container.innerHTML = "";
-            for(let id in allData.users) {
-                const u = allData.users[id];
-                container.innerHTML += `
-                    <div style="padding:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                        <span>${u.name} (${u.role})</span>
-                        <button class="btn-red" style="font-size:9px" onclick="window.delFirebaseUser('${id}')">USUŃ</button>
-                    </div>`;
-            }
-        }
-        window.delFirebaseUser = (id) => remove(ref(db, `users/${id}`));
-
-        // --- OBSŁUGA OCEN ---
-        document.getElementById('btn-add-grade').onclick = () => {
-            const g = {
-                s: document.getElementById('g-student').value,
-                v: parseFloat(document.getElementById('g-val').value),
-                w: parseInt(document.getElementById('g-weight').value),
-                c: document.getElementById('g-cat').value
-            };
-            push(ref(db, 'grades'), g);
-        };
-
-        function renderGrades() {
-            const body = document.getElementById('grades-body');
-            body.innerHTML = "";
-            
-            // Pobierz listę uczniów z allData.users
-            for(let uid in allData.users) {
-                const u = allData.users[uid];
-                if(u.role !== 'uczen') continue;
-                if(currentUser.role === 'uczen' && currentUser.name !== u.name) continue;
-
-                let sum = 0, weights = 0, tags = "";
-                for(let gid in allData.grades) {
-                    const grade = allData.grades[gid];
-                    if(grade.s === u.name) {
-                        sum += (grade.v * grade.w);
-                        weights += grade.w;
-                        tags += `<span class="grade-tag">${grade.v} <small onclick="window.delGrade('${gid}')" style="color:red; cursor:pointer">×</small></span>`;
-                    }
-                }
-                
-                const avg = weights > 0 ? (sum/weights).toFixed(2) : "-";
-                body.innerHTML += `<tr><td>${u.name}</td><td>${tags}</td><td><b>${avg}</b></td></tr>`;
-            }
-        }
-        window.delGrade = (id) => {
-            if(currentUser.role !== 'uczen') remove(ref(db, `grades/${id}`));
-        };
-
-        function updateSelectors() {
-            const selG = document.getElementById('g-student');
-            selG.innerHTML = "";
-            for(let id in allData.users) {
-                if(allData.users[id].role === 'uczen') {
-                    selG.innerHTML += `<option value="${allData.users[id].name}">${allData.users[id].name}</option>`;
-                }
-            }
-        }
-
-        // Proste przełączanie tabów (globalne)
-        window.showTab = (id) => {
-            document.querySelectorAll('.tab-pane').forEach(x => x.style.display = 'none');
-            document.getElementById('tab-'+id).style.display = 'block';
-        };
-
-        // Data
-        document.getElementById('header-date').innerText = new Date().toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
     </script>
 </body>
 </html>
